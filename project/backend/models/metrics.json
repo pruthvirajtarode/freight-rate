@@ -1,0 +1,7 @@
+{
+  "val_mae": 128.9779,
+  "val_rmse": 575.1267,
+  "val_r2": 0.850666,
+  "val_mape": 6.7607,
+  "best_model": "GradientBoosting"
+}

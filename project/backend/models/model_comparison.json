@@ -1,0 +1,44 @@
+{
+  "LinearRegression": {
+    "rmse": 387.5298,
+    "mae": 118.7335,
+    "r2": 0.922205,
+    "fit_time_seconds": 0.03
+  },
+  "RandomForest": {
+    "rmse": 390.1131,
+    "mae": 99.0047,
+    "r2": 0.92119,
+    "fit_time_seconds": 5.57
+  },
+  "ExtraTrees": {
+    "rmse": 392.76,
+    "mae": 100.78,
+    "r2": 0.920104,
+    "fit_time_seconds": 3.0
+  },
+  "GradientBoosting": {
+    "rmse": 375.0067,
+    "mae": 102.148,
+    "r2": 0.927155,
+    "fit_time_seconds": 9.18
+  },
+  "XGBoost": {
+    "rmse": 401.3165,
+    "mae": 115.6019,
+    "r2": 0.916602,
+    "fit_time_seconds": 0.52
+  },
+  "LightGBM": {
+    "rmse": 376.3896,
+    "mae": 101.2882,
+    "r2": 0.926589,
+    "fit_time_seconds": 0.19
+  },
+  "CatBoost": {
+    "rmse": 385.3595,
+    "mae": 108.6443,
+    "r2": 0.923035,
+    "fit_time_seconds": 0.5
+  }
+}
