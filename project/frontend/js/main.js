@@ -78,6 +78,11 @@ async function fetchAPI(endpoint, options = {}) {
         if (!response.ok) {
             throw new Error(`API Error: ${response.statusText}`);
         }
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            const text = await response.text();
+            throw new Error(`API returned non-JSON response: ${text.slice(0,200)}`);
+        }
         return await response.json();
     } catch (error) {
         console.error('API Fetch failed:', error);
