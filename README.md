@@ -22,17 +22,14 @@ High-quality, production-oriented freight rate prediction platform. This reposit
 
 ```mermaid
 flowchart LR
-		A[Raw Data (data/)] --> B[Preprocessing]
-		B --> C[Feature Engineering]
-		C --> D[Model Training & Selection]
-		D --> E[Evaluation & Visualizations]
-		E --> F[Saved Artifacts (project/backend/models & charts)]
-		F --> G[FastAPI Backend]
-		G --> H[Frontend Dashboard]
-		H --> I[User / Reviewer]
-		style A fill:#f9f,stroke:#333,stroke-width:1px
-		style G fill:#bbf,stroke:#333
-		style H fill:#bfb,stroke:#333
+	A[Raw Data] --> B[Preprocessing]
+	B --> C[Feature Engineering]
+	C --> D[Model Training & Selection]
+	D --> E[Evaluation & Visualizations]
+	E --> F[Saved Artifacts]
+	F --> G[FastAPI Backend]
+	G --> H[Frontend Dashboard]
+	H --> I[User / Reviewer]
 ```
 
 ## Folder structure (important)
