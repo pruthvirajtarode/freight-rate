@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | FreightAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand"><i class="fas fa-truck-fast"></i> FreightAI</div>
+            <button class="nav-toggle" id="nav-toggle-btn" aria-label="Toggle navigation" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="prediction.html" class="nav-link">Predict</a></li>
+                <li><a href="analytics.html" class="nav-link">Analytics</a></li>
+                <li><a href="model.html" class="nav-link">Models</a></li>
+                <li><a href="december.html" class="nav-link">Dec Forecast</a></li>
+                <li><a href="about.html" class="nav-link active">About</a></li>
+            </ul>
+            <button class="theme-toggle" id="theme-toggle-btn"><i class="fas fa-moon"></i></button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="glass-panel" style="max-width: 800px; margin: 4rem auto; padding: 3rem;">
+            <h1 style="margin-bottom: 2rem;">System Architecture</h1>
+            
+            <h3>Tech Stack</h3>
+            <ul style="list-style-type: disc; margin-left: 1.5rem; margin-bottom: 2rem; color: var(--text-muted);">
+                <li><strong>Backend:</strong> FastAPI, Python 3.10+</li>
+                <li><strong>Machine Learning:</strong> Scikit-Learn, Optuna, XGBoost, LightGBM, SHAP</li>
+                <li><strong>Frontend:</strong> HTML5, CSS3 (Glassmorphism), Vanilla JS, GSAP</li>
+            </ul>
+            
+            <h3>Pipeline Summary</h3>
+            <ol style="list-style-type: decimal; margin-left: 1.5rem; color: var(--text-muted);">
+                <li><strong>Data Ingestion:</strong> Reads training & validation datasets.</li>
+                <li><strong>Preprocessing:</strong> Handles missing weights, parses dates, applies Target Encoding.</li>
+                <li><strong>Feature Engineering:</strong> Haversine distances, interaction terms, cyclical encodings.</li>
+                <li><strong>Model Selection:</strong> 5-Fold CV across 7 models. Picks lowest RMSE.</li>
+                <li><strong>Hyperparameter Tuning:</strong> Optuna optimization (TPE Sampler).</li>
+                <li><strong>Serving:</strong> Deployed via FastAPI REST endpoints.</li>
+            </ol>
+        </div>
+    </main>
+
+    <script src="js/theme.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

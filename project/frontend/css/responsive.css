@@ -1,0 +1,73 @@
+/*
+responsive.css — Media queries for responsive design
+*/
+
+@media (max-width: 1024px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar .container {
+        position: relative;
+        padding: 0 1rem;
+    }
+
+    .nav-toggle {
+        display: inline-flex;
+    }
+
+    .nav-links {
+        position: absolute;
+        top: calc(100% + 0.75rem);
+        right: 1rem;
+        left: 1rem;
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--glass-shadow);
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .glass-panel {
+        padding: 1.5rem;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+
+    main {
+        padding: 1.25rem 0 2rem;
+    }
+
+    .hero-actions,
+    .dashboard-header > div {
+        width: 100%;
+    }
+
+    .btn,
+    .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

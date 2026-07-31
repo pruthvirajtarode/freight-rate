@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Interpretability | FreightAI</title>
+    <meta name="description" content="Explainable AI (XAI) dashboard showing SHAP values, feature impact directions, and model transparency.">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* ===== MODEL SPECIFIC STYLES ===== */
+        .shap-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 900px) { .shap-grid { grid-template-columns: 1fr; } }
+
+        .model-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.75rem;
+            backdrop-filter: blur(12px);
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-header-row h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .chart-header-row h3 i { color: var(--primary); }
+
+        .badge-pill {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.25rem 0.7rem;
+            border-radius: 9999px;
+            background: rgba(99,102,241,0.15);
+            color: #818CF8;
+            border: 1px solid rgba(99,102,241,0.3);
+        }
+
+        /* SHAP Image container */
+        .shap-img-box {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            min-height: 400px;
+        }
+        .shap-img-box img {
+            max-width: 100%;
+            max-height: 480px;
+            object-fit: contain;
+            border-radius: 4px;
+            transition: transform 0.3s ease;
+        }
+        .shap-img-box img:hover {
+            transform: scale(1.02);
+        }
+
+        /* Waterfall Chart styling */
+        .waterfall-bar {
+            height: 24px;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .guide-list { list-style: none; padding: 0; }
+        .guide-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            gap: 0.75rem;
+        }
+        .guide-item:last-child { border-bottom: none; }
+        .guide-dot {
+            width: 8px; height: 8px; border-radius: 50%; margin-top: 0.35rem; flex-shrink: 0;
+        }
+        .guide-text h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.2rem; }
+        .guide-text p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+
+        /* KPI Row */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 768px) { .kpi-row { grid-template-columns: 1fr 1fr; } }
+        
+        .kpi-small {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1.5rem;
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .kpi-small-icon {
+            width: 42px; height: 42px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+        }
+        .ks1 .kpi-small-icon { background: rgba(99,102,241,0.15); color:#818CF8; }
+        .ks2 .kpi-small-icon { background: rgba(168,85,247,0.15); color:#C084FC; }
+        .ks3 .kpi-small-icon { background: rgba(16,185,129,0.15); color:#34D399; }
+        .ks4 .kpi-small-icon { background: rgba(59,130,246,0.15); color:#60A5FA; }
+        .kpi-small-val {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            font-weight: 800;
+            display: block;
+        }
+        .kpi-small-lbl { font-size: 0.75rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand"><i class="fas fa-truck-fast"></i> FreightAI</div>
+            <button class="nav-toggle" id="nav-toggle-btn" aria-label="Toggle navigation" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="prediction.html" class="nav-link">Predict</a></li>
+                <li><a href="analytics.html" class="nav-link">Analytics</a></li>
+                <li><a href="model.html" class="nav-link active">Models</a></li>
+                <li><a href="december.html" class="nav-link">Dec Forecast</a></li>
+            </ul>
+            <button class="theme-toggle" id="theme-toggle-btn"><i class="fas fa-moon"></i></button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="dashboard-header animate-fade-up">
+            <div class="dashboard-title">
+                <h1>Model Interpretability &amp; SHAP</h1>
+                <p class="text-muted">Explainable AI (XAI) engine explaining feature attribution and decision drivers.</p>
+            </div>
+        </div>
+
+        <!-- Interpretability KPIs -->
+        <div class="kpi-row animate-fade-up">
+            <div class="kpi-small ks1">
+                <div class="kpi-small-icon"><i class="fas fa-search-plus"></i></div>
+                <div>
+                    <span class="kpi-small-val text-gradient">SHAP</span>
+                    <span class="kpi-small-lbl">Explainer Framework</span>
+                </div>
+            </div>
+            <div class="kpi-small ks2">
+                <div class="kpi-small-icon"><i class="fas fa-calculator"></i></div>
+                <div>
+                    <span class="kpi-small-val">100%</span>
+                    <span class="kpi-small-lbl">Local Explainability</span>
+                </div>
+            </div>
+            <div class="kpi-small ks3">
+                <div class="kpi-small-icon"><i class="fas fa-check-double"></i></div>
+                <div>
+                    <span class="kpi-small-val">Additive</span>
+                    <span class="kpi-small-lbl">Shapley Property</span>
+                </div>
+            </div>
+            <div class="kpi-small ks4">
+                <div class="kpi-small-icon"><i class="fas fa-eye"></i></div>
+                <div>
+                    <span class="kpi-small-val">Transparent</span>
+                    <span class="kpi-small-lbl">AI Compliance</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="shap-grid animate-fade-up delay-100">
+            <!-- SHAP Plot -->
+            <div class="model-card">
+                <div class="chart-header-row">
+                    <h3><i class="fas fa-project-diagram"></i> Global SHAP Summary Plot</h3>
+                    <span class="badge-pill">TreeExplainer</span>
+                </div>
+                <div class="shap-img-box" id="shap-box">
+                    <img id="chart-shap" alt="SHAP Summary Plot" style="display:none;">
+                    <div class="static-chart-placeholder" id="shap-placeholder" style="text-align:center;color:var(--text-muted);">
+                        <i class="fas fa-diagram-project" style="font-size:3rem;margin-bottom:1rem;color:var(--primary);"></i>
+                        <p>Loading global SHAP summary plot...</p>
+                        <p style="font-size:0.75rem;margin-top:0.3rem;">Ensure training pipeline was run &amp; API is online</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reading Guide -->
+            <div class="model-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                    <div class="chart-header-row">
+                        <h3><i class="fas fa-book-open"></i> Interpretation Guide</h3>
+                    </div>
+                    <ul class="guide-list">
+                        <li class="guide-item">
+                            <span class="guide-dot" style="background:#EF4444;"></span>
+                            <div class="guide-text">
+                                <h4>Red Dots (High Feature Value)</h4>
+                                <p>Higher values for this feature push the predicted freight rate higher. For example, high distance pushes the prediction up.</p>
+                            </div>
+                        </li>
+                        <li class="guide-item">
+                            <span class="guide-dot" style="background:#3B82F6;"></span>
+                            <div class="guide-text">
+                                <h4>Blue Dots (Low Feature Value)</h4>
+                                <p>Lower feature values push the rate lower. For instance, low cargo weights decrease the predicted rate.</p>
+                            </div>
+                        </li>
+                        <li class="guide-item">
+                            <span class="guide-dot" style="background:#8B5CF6;"></span>
+                            <div class="guide-text">
+                                <h4>Horizontal Spread (SHAP value)</h4>
+                                <p>Dots to the right of the center line indicate a positive impact on rate; dots to the left indicate a negative impact.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div style="margin-top:1.5rem; padding:1rem; background:rgba(99,102,241,0.06); border-radius:var(--radius-sm); border:1px solid rgba(99,102,241,0.15);">
+                    <h5 style="font-size:0.85rem;margin-bottom:0.3rem;font-weight:700;"><i class="fas fa-info-circle" style="color:var(--primary);"></i> AI Compliance Note</h5>
+                    <p style="font-size:0.75rem;color:var(--text-muted);line-height:1.4;">Explainable AI dashboards are critical for supply chain auditability, contract validation, and customer-facing transparency.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Waterfall Explorer (Local Explanations) -->
+        <div class="model-card animate-fade-up delay-200" style="margin-bottom:3rem;">
+            <div class="chart-header-row">
+                <h3><i class="fas fa-sliders-h"></i> Interactive Local Attribution Simulator</h3>
+                <span class="badge-pill">Waterfall Chart</span>
+            </div>
+            <p class="text-muted" style="font-size:0.88rem;margin-bottom:1.5rem;">Simulate how changing features for a specific shipment load increases or decreases the rate step-by-step from the base value.</p>
+            
+            <div style="display:grid; grid-template-columns:1fr 2.2fr; gap:2rem;">
+                <!-- Controls -->
+                <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                    <div>
+                        <label class="form-label">Distance (miles)</label>
+                        <input type="range" class="form-range" id="sim-dist" min="50" max="1000" value="400" style="width:100%;accent-color:var(--primary);">
+                        <div style="display:flex; justify-content:between; font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+                            <span>50 mi</span>
+                            <span style="margin-left:auto;" id="lbl-sim-dist">400 mi</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Cargo Weight (lbs)</label>
+                        <input type="range" class="form-range" id="sim-weight" min="5000" max="45000" value="25000" style="width:100%;accent-color:var(--primary);">
+                        <div style="display:flex; justify-content:between; font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+                            <span>5k lbs</span>
+                            <span style="margin-left:auto;" id="lbl-sim-weight">25,000 lbs</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Equipment Premium</label>
+                        <select class="form-control" id="sim-equip">
+                            <option value="0">Dry Van (Baseline)</option>
+                            <option value="180">Flatbed (+ $180)</option>
+                            <option value="320">Reefer (+ $320)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Market Capacity Signal</label>
+                        <select class="form-control" id="sim-market">
+                            <option value="-60">Loose Capacity (- $60)</option>
+                            <option value="0" selected>Normal Capacity ($0)</option>
+                            <option value="120">Tight Capacity (+ $120)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Live Waterfall Chart -->
+                <div class="shap-img-box" style="flex-direction:column; align-items:stretch; padding:1.5rem; justify-content:space-between; min-height:auto;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid var(--glass-border); padding-bottom:0.5rem;">
+                        <span style="font-size:0.85rem;color:var(--text-muted);">Base Model Reference Rate</span>
+                        <span style="font-weight:700;font-family:var(--font-heading);" id="base-ref-val">$850.00</span>
+                    </div>
+
+                    <!-- Waterfall steps -->
+                    <div style="display:flex; flex-direction:column; gap:0.75rem;" id="waterfall-steps">
+                        <!-- Attributions populated by script -->
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin-top:1.5rem; border-top:1px solid var(--glass-border); padding-top:0.75rem; align-items:center;">
+                        <span style="font-size:0.95rem; font-weight:700;">Final Predicted Rate</span>
+                        <span style="font-size:1.8rem; font-weight:900; font-family:var(--font-heading); color:var(--success);" id="final-pred-val">$1,240.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/theme.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        function tryLoadShap() {
+            const img = document.getElementById('chart-shap');
+            const ph = document.getElementById('shap-placeholder');
+            img.src = `/static/charts/shap_summary.png`;
+            img.onload = () => { img.style.display = 'block'; if(ph) ph.style.display = 'none'; };
+            img.onerror = () => { img.style.display = 'none'; if(ph) ph.style.display = 'block'; };
+        }
+
+        // Waterfall Simulation Logic
+        const simDist = document.getElementById('sim-dist');
+        const simWeight = document.getElementById('sim-weight');
+        const simEquip = document.getElementById('sim-equip');
+        const simMarket = document.getElementById('sim-market');
+
+        const lblDist = document.getElementById('lbl-sim-dist');
+        const lblWeight = document.getElementById('lbl-sim-weight');
+
+        function updateWaterfall() {
+            const dist = parseInt(simDist.value);
+            const weight = parseInt(simWeight.value);
+            const equip = parseInt(simEquip.value);
+            const market = parseInt(simMarket.value);
+
+            lblDist.textContent = dist + ' mi';
+            lblWeight.textContent = weight.toLocaleString() + ' lbs';
+
+            const baseVal = 850.00;
+            
+            // Calculate attributions
+            const distContrib = +((dist - 400) * 1.35).toFixed(2);
+            const weightContrib = +((weight - 25000) * 0.008).toFixed(2);
+            const equipContrib = equip;
+            const marketContrib = market;
+            
+            const finalVal = baseVal + distContrib + weightContrib + equipContrib + marketContrib;
+
+            document.getElementById('final-pred-val').textContent = '$' + finalVal.toFixed(2);
+
+            const steps = [
+                { name: 'Base Value (Global Average)', val: baseVal, cumulative: baseVal, isBase: true },
+                { name: 'Distance Effect', val: distContrib, cumulative: baseVal + distContrib },
+                { name: 'Weight Load Effect', val: weightContrib, cumulative: baseVal + distContrib + weightContrib },
+                { name: 'Equipment Choice Premium', val: equipContrib, cumulative: baseVal + distContrib + weightContrib + equipContrib },
+                { name: 'Market Capacity Impact', val: marketContrib, cumulative: finalVal }
+            ];
+
+            const container = document.getElementById('waterfall-steps');
+            container.innerHTML = '';
+
+            const maxCum = Math.max(...steps.map(s => s.cumulative), 1200);
+
+            steps.forEach((step, idx) => {
+                if (step.isBase) {
+                    const widthPct = (step.cumulative / maxCum * 100).toFixed(0);
+                    container.innerHTML += `
+                        <div style="display:flex;align-items:center;font-size:0.82rem;">
+                            <div style="width:180px;flex-shrink:0;color:var(--text-muted);">${step.name}</div>
+                            <div style="flex:1;display:flex;align-items:center;gap:0.5rem;">
+                                <div style="width:${widthPct}%;background:rgba(255,255,255,0.15);height:14px;border-radius:3px;"></div>
+                                <span style="font-weight:600;font-family:var(--font-heading);">$${step.val.toFixed(2)}</span>
+                            </div>
+                        </div>`;
+                } else {
+                    const isPositive = step.val >= 0;
+                    const valSign = isPositive ? '+' : '';
+                    const color = isPositive ? 'var(--success)' : 'var(--error)';
+                    const bg = isPositive ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
+                    const border = isPositive ? '#10B981' : '#EF4444';
+                    
+                    const magnitude = Math.abs(step.val);
+                    const widthPct = Math.min((magnitude / maxCum * 100), 50).toFixed(0);
+                    
+                    container.innerHTML += `
+                        <div style="display:flex;align-items:center;font-size:0.82rem;">
+                            <div style="width:180px;flex-shrink:0;color:var(--text-muted);">${step.name}</div>
+                            <div style="flex:1;display:flex;align-items:center;gap:0.5rem;">
+                                <div style="display:flex;flex:1;align-items:center;">
+                                    <div style="width:${widthPct}%;background:${bg};border:1px solid ${border};height:14px;border-radius:3px;"></div>
+                                    <span style="font-weight:700;color:${color};margin-left:0.5rem;font-family:var(--font-heading);">${valSign}$${step.val.toFixed(2)}</span>
+                                </div>
+                                <span style="color:var(--text-muted);font-size:0.75rem;width:80px;text-align:right;">Subtotal: $${step.cumulative.toFixed(2)}</span>
+                            </div>
+                        </div>`;
+                }
+            });
+        }
+
+        simDist.addEventListener('input', updateWaterfall);
+        simWeight.addEventListener('input', updateWaterfall);
+        simEquip.addEventListener('change', updateWaterfall);
+        simMarket.addEventListener('change', updateWaterfall);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            tryLoadShap();
+            updateWaterfall();
+        });
+    </script>
+</body>
+</html>

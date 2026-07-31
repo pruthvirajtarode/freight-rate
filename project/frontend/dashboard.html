@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | FreightAI</title>
+    <meta name="description" content="Model performance dashboard showing RMSE, MAE, R² and model comparison for FreightAI.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .kpi-grid-enhanced {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        @media(max-width:900px){ .kpi-grid-enhanced{grid-template-columns:1fr 1fr;} }
+
+        .kpi-enhanced {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .kpi-enhanced:hover { transform:translateY(-3px); box-shadow:0 16px 40px rgba(0,0,0,0.25); }
+        .kpi-enhanced::after {
+            content:'';
+            position:absolute;
+            top:0;left:0;right:0;
+            height:3px;
+            border-radius:var(--radius-md) var(--radius-md) 0 0;
+        }
+        .kpi-enhanced.k1::after { background:linear-gradient(90deg,#6366F1,#8B5CF6); }
+        .kpi-enhanced.k2::after { background:linear-gradient(90deg,#10B981,#34D399); }
+        .kpi-enhanced.k3::after { background:linear-gradient(90deg,#F59E0B,#EF4444); }
+        .kpi-enhanced.k4::after { background:linear-gradient(90deg,#3B82F6,#06B6D4); }
+
+        .kpi-row { display:flex; justify-content:space-between; align-items:flex-start; }
+        .kpi-icon-box {
+            width:44px;height:44px;border-radius:12px;
+            display:flex;align-items:center;justify-content:center;
+            font-size:1.1rem;
+        }
+        .k1 .kpi-icon-box { background:rgba(99,102,241,0.15);color:#818CF8; }
+        .k2 .kpi-icon-box { background:rgba(16,185,129,0.15);color:#34D399; }
+        .k3 .kpi-icon-box { background:rgba(245,158,11,0.15);color:#FCD34D; }
+        .k4 .kpi-icon-box { background:rgba(59,130,246,0.15);color:#60A5FA; }
+
+        .kpi-val {
+            font-family:var(--font-heading);
+            font-size:2rem;font-weight:800;
+            letter-spacing:-0.03em;
+            margin:0.75rem 0 0.25rem;
+            display:block;
+        }
+        .kpi-lbl { font-size:0.82rem;color:var(--text-muted);font-weight:500; }
+        .kpi-note { font-size:0.75rem;margin-top:0.5rem;font-weight:600; }
+        .kpi-note.good { color:#34D399; }
+        .kpi-note.warn { color:#FCD34D; }
+
+        .charts-2col {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:1.5rem;
+            margin-bottom:1.5rem;
+        }
+        @media(max-width:900px){ .charts-2col{grid-template-columns:1fr;} }
+
+        .chart-card {
+            background:var(--glass-bg);
+            border:1px solid var(--glass-border);
+            border-radius:var(--radius-md);
+            padding:1.5rem;
+            backdrop-filter:blur(12px);
+        }
+        .chart-title-row {
+            display:flex;justify-content:space-between;align-items:center;
+            margin-bottom:1.25rem;
+        }
+        .chart-title-row h3 {
+            font-size:1rem;font-weight:700;
+            display:flex;align-items:center;gap:0.5rem;
+        }
+        .chart-title-row h3 i { color:var(--primary);font-size:0.9rem; }
+        .badge-sm {
+            font-size:0.72rem;font-weight:700;
+            padding:0.2rem 0.6rem;border-radius:9999px;
+            background:rgba(99,102,241,0.15);
+            color:#818CF8;
+            border:1px solid rgba(99,102,241,0.3);
+        }
+
+        /* Comparison table enhanced */
+        .data-table-enhanced { width:100%;border-collapse:collapse; }
+        .data-table-enhanced thead th {
+            font-size:0.78rem;font-weight:700;
+            text-transform:uppercase;letter-spacing:0.07em;
+            color:var(--text-muted);padding:0.75rem 1rem;
+            border-bottom:1px solid var(--glass-border);text-align:left;
+        }
+        .data-table-enhanced tbody td {
+            padding:0.85rem 1rem;font-size:0.88rem;
+            border-bottom:1px solid rgba(255,255,255,0.03);
+        }
+        [data-theme="light"] .data-table-enhanced tbody td { border-bottom:1px solid rgba(0,0,0,0.04); }
+        .data-table-enhanced tbody tr:hover { background:rgba(99,102,241,0.05); }
+        .data-table-enhanced tbody tr:last-child td { border-bottom:none; }
+        .bar-cell { display:flex;align-items:center;gap:0.75rem; }
+        .mini-bar-wrap { flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden; }
+        [data-theme="light"] .mini-bar-wrap { background:rgba(0,0,0,0.06); }
+        .mini-bar { height:100%;border-radius:99px;transition:width 1s ease; }
+        .rank-badge {
+            display:inline-flex;align-items:center;justify-content:center;
+            width:24px;height:24px;border-radius:50%;
+            font-size:0.72rem;font-weight:800;
+        }
+        .rank-1 { background:linear-gradient(135deg,#F59E0B,#EF4444);color:#fff; }
+        .rank-other { background:rgba(255,255,255,0.08);color:var(--text-muted); }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand"><i class="fas fa-truck-fast"></i> FreightAI</div>
+            <button class="nav-toggle" id="nav-toggle-btn" aria-label="Toggle navigation" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="dashboard.html" class="nav-link active">Dashboard</a></li>
+                <li><a href="prediction.html" class="nav-link">Predict</a></li>
+                <li><a href="analytics.html" class="nav-link">Analytics</a></li>
+                <li><a href="model.html" class="nav-link">Models</a></li>
+                <li><a href="december.html" class="nav-link">Dec Forecast</a></li>
+            </ul>
+            <button class="theme-toggle" id="theme-toggle-btn"><i class="fas fa-moon"></i></button>
+        </div>
+    </nav>
+
+    <main class="container" id="dashboard-metrics">
+        <div class="dashboard-header animate-fade-up">
+            <div class="dashboard-title">
+                <h1>Model Performance Overview</h1>
+                <p class="text-muted">Live metrics from the latest training pipeline — cross-validated on held-out validation data.</p>
+            </div>
+            <div style="display:flex;gap:0.75rem;">
+                <button class="btn btn-secondary" onclick="location.href='analytics.html'">
+                    <i class="fas fa-chart-pie"></i> Analytics
+                </button>
+                <button class="btn btn-primary" onclick="alert('In production, this triggers the full retraining pipeline via background API task.')">
+                    <i class="fas fa-sync-alt"></i> Retrain Model
+                </button>
+            </div>
+        </div>
+
+        <!-- KPI Row -->
+        <div class="kpi-grid-enhanced animate-fade-up">
+            <div class="kpi-enhanced k1">
+                <div class="kpi-row">
+                    <div>
+                        <div class="kpi-lbl">Best Model</div>
+                        <span class="kpi-val" id="kpi-best-model" style="font-size:1.3rem;">Loading...</span>
+                    </div>
+                    <div class="kpi-icon-box"><i class="fas fa-trophy"></i></div>
+                </div>
+                <div class="kpi-note good"><i class="fas fa-check-circle"></i> Winner of 7-model benchmark</div>
+            </div>
+            <div class="kpi-enhanced k2">
+                <div class="kpi-row">
+                    <div>
+                        <div class="kpi-lbl">RMSE (Validation)</div>
+                        <span class="kpi-val" id="kpi-rmse">$—</span>
+                    </div>
+                    <div class="kpi-icon-box"><i class="fas fa-bullseye"></i></div>
+                </div>
+                <div class="kpi-note good" id="rmse-note"><i class="fas fa-arrow-down"></i> Lower is better</div>
+            </div>
+            <div class="kpi-enhanced k3">
+                <div class="kpi-row">
+                    <div>
+                        <div class="kpi-lbl">MAE (Validation)</div>
+                        <span class="kpi-val" id="kpi-mae">$—</span>
+                    </div>
+                    <div class="kpi-icon-box"><i class="fas fa-ruler-combined"></i></div>
+                </div>
+                <div class="kpi-note warn"><i class="fas fa-info-circle"></i> Mean absolute error</div>
+            </div>
+            <div class="kpi-enhanced k4">
+                <div class="kpi-row">
+                    <div>
+                        <div class="kpi-lbl">R² Score</div>
+                        <span class="kpi-val" id="kpi-r2">—</span>
+                    </div>
+                    <div class="kpi-icon-box"><i class="fas fa-percentage"></i></div>
+                </div>
+                <div class="kpi-note good" id="r2-note"><i class="fas fa-arrow-up"></i> Higher is better</div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="charts-2col animate-fade-up delay-200">
+            <div class="chart-card">
+                <div class="chart-title-row">
+                    <h3><i class="fas fa-chart-bar"></i> RMSE by Model</h3>
+                    <span class="badge-sm">7 Models</span>
+                </div>
+                <canvas id="rmse-chart" height="230"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title-row">
+                    <h3><i class="fas fa-chart-pie"></i> R² Score Comparison</h3>
+                    <span class="badge-sm">Validation Set</span>
+                </div>
+                <canvas id="r2-chart" height="230"></canvas>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 — Static ML Charts -->
+        <div class="charts-2col animate-fade-up delay-300">
+            <div class="chart-card">
+                <div class="chart-title-row">
+                    <h3><i class="fas fa-layer-group"></i> Feature Importance (Top 15)</h3>
+                    <span class="badge-sm">Best Model</span>
+                </div>
+                <div style="height:280px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.02);border-radius:8px;overflow:hidden;">
+                    <img id="chart-feature-importance" class="static-chart" alt="Feature Importance" style="max-width:100%;max-height:280px;object-fit:contain;">
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title-row">
+                    <h3><i class="fas fa-braille"></i> Actual vs Predicted</h3>
+                    <span class="badge-sm">Scatter Plot</span>
+                </div>
+                <div style="height:280px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.02);border-radius:8px;overflow:hidden;">
+                    <img id="chart-scatter" class="static-chart" alt="Actual vs Predicted" style="max-width:100%;max-height:280px;object-fit:contain;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Full width residuals -->
+        <div class="chart-card animate-fade-up delay-400" style="margin-bottom:1.5rem;">
+            <div class="chart-title-row">
+                <h3><i class="fas fa-wave-square"></i> Residual Distribution</h3>
+                <span class="badge-sm">Error Analysis</span>
+            </div>
+            <div style="height:280px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.02);border-radius:8px;overflow:hidden;">
+                <img id="chart-residuals" class="static-chart" alt="Residuals" style="max-width:100%;max-height:280px;object-fit:contain;">
+            </div>
+        </div>
+
+        <!-- Model Comparison Table -->
+        <div class="chart-card animate-fade-up delay-500" style="margin-bottom:3rem;">
+            <div class="chart-title-row">
+                <h3><i class="fas fa-table"></i> Full Model Benchmark</h3>
+                <span class="badge-sm">Ranked by RMSE</span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-table-enhanced" id="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Model</th>
+                            <th>RMSE ↑</th>
+                            <th>RMSE Bar</th>
+                            <th>MAE</th>
+                            <th>R²</th>
+                            <th>Fit Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparison-tbody">
+                        <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:2rem;">Loading model data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/theme.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/charts.js"></script>
+    <script>
+    Chart.defaults.color = '#94A3B8';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+
+    let rmseChart, r2Chart;
+
+    async function loadDashboard() {
+        try {
+            const [metrics, comparison] = await Promise.all([
+                fetch(API_BASE + '/metrics').then(r => r.json()),
+                fetch(API_BASE + '/models/compare').then(r => r.json())
+            ]);
+
+            // KPIs
+            document.getElementById('kpi-best-model').textContent = metrics.best_model || 'N/A';
+            document.getElementById('kpi-rmse').textContent = `$${(metrics.val_rmse||0).toFixed(2)}`;
+            document.getElementById('kpi-mae').textContent = `$${(metrics.val_mae||0).toFixed(2)}`;
+            document.getElementById('kpi-r2').textContent = (metrics.val_r2||0).toFixed(4);
+
+            const r2 = metrics.val_r2 || 0;
+            document.getElementById('r2-note').innerHTML = r2 > 0.9
+                ? '<i class="fas fa-star"></i> Excellent fit (>0.90)'
+                : '<i class="fas fa-check"></i> Good fit';
+
+            // Load static charts
+            loadStaticChart('feature_importance.png', 'chart-feature-importance');
+            loadStaticChart('residuals.png', 'chart-residuals');
+            loadStaticChart('prediction_scatter.png', 'chart-scatter');
+
+            // Build Chart.js comparison charts
+            buildComparisonCharts(comparison);
+            buildComparisonTable(comparison);
+
+        } catch(e) {
+            console.warn('Backend not reachable or model not trained yet.', e);
+            // Show demo data
+            showDemoData();
+        }
+    }
+
+    function showDemoData() {
+        document.getElementById('kpi-best-model').textContent = 'Train model first';
+        document.getElementById('kpi-rmse').textContent = '—';
+        document.getElementById('kpi-mae').textContent = '—';
+        document.getElementById('kpi-r2').textContent = '—';
+        document.getElementById('comparison-tbody').innerHTML =
+            '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:2rem;"><i class="fas fa-info-circle"></i> Run the training pipeline first: <code>python train.py</code></td></tr>';
+    }
+
+    function buildComparisonCharts(comparison) {
+        const models = Object.keys(comparison).map(k => ({name:k,...comparison[k]})).sort((a,b)=>a.rmse-b.rmse);
+        const colors = ['#6366F1','#8B5CF6','#A855F7','#EC4899','#EF4444','#F59E0B','#10B981'];
+
+        // RMSE Chart
+        const rmseCtx = document.getElementById('rmse-chart').getContext('2d');
+        if(rmseChart) rmseChart.destroy();
+        rmseChart = new Chart(rmseCtx, {
+            type: 'bar',
+            data: {
+                labels: models.map(m => m.name.replace('Regression','')),
+                datasets: [{
+                    label: 'RMSE ($)',
+                    data: models.map(m => m.rmse),
+                    backgroundColor: models.map((_,i) => i===0 ? 'rgba(99,102,241,0.9)' : 'rgba(148,163,184,0.25)'),
+                    borderColor: models.map((_,i) => i===0 ? '#6366F1' : 'rgba(148,163,184,0.4)'),
+                    borderWidth:2,borderRadius:6
+                }]
+            },
+            options: {
+                responsive:true,
+                plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`RMSE: $${c.parsed.y.toFixed(2)}`},backgroundColor:'rgba(18,24,38,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1}},
+                scales:{
+                    x:{grid:{display:false}},
+                    y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{callback:v=>'$'+v.toFixed(0)}}
+                }
+            }
+        });
+
+        // R² Chart
+        const r2Ctx = document.getElementById('r2-chart').getContext('2d');
+        if(r2Chart) r2Chart.destroy();
+        r2Chart = new Chart(r2Ctx, {
+            type: 'bar',
+            data: {
+                labels: models.map(m => m.name.replace('Regression','')),
+                datasets: [{
+                    label: 'R² Score',
+                    data: models.map(m => m.r2),
+                    backgroundColor: models.map((_,i) => colors[i % colors.length] + '99'),
+                    borderColor: models.map((_,i) => colors[i % colors.length]),
+                    borderWidth:2,borderRadius:6
+                }]
+            },
+            options: {
+                responsive:true,
+                plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`R²: ${c.parsed.y.toFixed(4)}`},backgroundColor:'rgba(18,24,38,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1}},
+                scales:{
+                    x:{grid:{display:false}},
+                    y:{grid:{color:'rgba(255,255,255,0.04)'},min:0,max:1}
+                }
+            }
+        });
+    }
+
+    function buildComparisonTable(comparison) {
+        const models = Object.keys(comparison).map(k => ({name:k,...comparison[k]})).sort((a,b)=>a.rmse-b.rmse);
+        const maxRmse = Math.max(...models.map(m=>m.rmse));
+        const tbody = document.getElementById('comparison-tbody');
+        tbody.innerHTML = '';
+        models.forEach((m,i) => {
+            const isBest = i === 0;
+            const pct = ((m.rmse/maxRmse)*100).toFixed(0);
+            const barColor = isBest ? '#6366F1' : '#94A3B8';
+            tbody.innerHTML += `
+                <tr>
+                    <td><span class="rank-badge ${isBest?'rank-1':'rank-other'}">${i+1}</span></td>
+                    <td>
+                        <strong>${m.name}</strong>
+                        ${isBest ? '<span style="margin-left:8px;background:linear-gradient(135deg,#10B981,#34D399);color:#fff;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:700;">BEST</span>' : ''}
+                    </td>
+                    <td style="font-weight:700;font-family:var(--font-heading);">$${m.rmse.toFixed(2)}</td>
+                    <td style="min-width:120px;">
+                        <div class="bar-cell">
+                            <div class="mini-bar-wrap"><div class="mini-bar" style="width:${pct}%;background:${barColor};"></div></div>
+                            <span style="font-size:0.75rem;color:var(--text-muted);">${pct}%</span>
+                        </div>
+                    </td>
+                    <td>$${m.mae.toFixed(2)}</td>
+                    <td>${m.r2.toFixed(4)}</td>
+                    <td>${m.fit_time_seconds.toFixed(2)}s</td>
+                </tr>`;
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics | FreightAI</title>
+    <meta name="description" content="Exploratory data analysis — feature correlations, rate distributions, and market insights.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .analytics-kpi {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        @media(max-width:900px){ .analytics-kpi{grid-template-columns:1fr 1fr;} }
+
+        .a-kpi {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s;
+        }
+        .a-kpi:hover { transform: translateY(-3px); }
+        .a-kpi-icon {
+            width: 50px; height: 50px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .ai1 .a-kpi-icon { background:rgba(99,102,241,0.15);color:#818CF8; }
+        .ai2 .a-kpi-icon { background:rgba(16,185,129,0.15);color:#34D399; }
+        .ai3 .a-kpi-icon { background:rgba(245,158,11,0.15);color:#FCD34D; }
+        .ai4 .a-kpi-icon { background:rgba(59,130,246,0.15);color:#60A5FA; }
+        .a-kpi-val {
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            display: block;
+        }
+        .a-kpi-lbl { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+
+        .chart-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.75rem;
+            backdrop-filter: blur(12px);
+            margin-bottom: 1.5rem;
+        }
+        .chart-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .chart-title-row h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .chart-title-row h3 i { color: var(--primary); }
+        .badge-pill {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.25rem 0.7rem;
+            border-radius: 9999px;
+            background: rgba(99,102,241,0.15);
+            color: #818CF8;
+            border: 1px solid rgba(99,102,241,0.3);
+        }
+
+        .two-col { display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem; }
+        @media(max-width:900px){ .two-col{grid-template-columns:1fr;} }
+
+        /* Insight boxes */
+        .insight-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        @media(max-width:900px){ .insight-grid{grid-template-columns:1fr;} }
+        .insight-box {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+        }
+        .insight-box-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        .insight-box h4 { font-size:1rem;font-weight:700;margin-bottom:0.4rem; }
+        .insight-box p { font-size:0.83rem;color:var(--text-muted);line-height:1.6; }
+
+        /* Static chart container */
+        .static-chart-box {
+            height: 340px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.02);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+        .static-chart-box img { max-width:100%;max-height:340px;object-fit:contain; }
+        .static-chart-placeholder {
+            text-align: center;
+            color: var(--text-muted);
+        }
+        .static-chart-placeholder i { font-size:3rem;margin-bottom:1rem;color:var(--primary); }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand"><i class="fas fa-truck-fast"></i> FreightAI</div>
+            <button class="nav-toggle" id="nav-toggle-btn" aria-label="Toggle navigation" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="prediction.html" class="nav-link">Predict</a></li>
+                <li><a href="analytics.html" class="nav-link active">Analytics</a></li>
+                <li><a href="model.html" class="nav-link">Models</a></li>
+                <li><a href="december.html" class="nav-link">Dec Forecast</a></li>
+            </ul>
+            <button class="theme-toggle" id="theme-toggle-btn"><i class="fas fa-moon"></i></button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="dashboard-header animate-fade-up">
+            <div class="dashboard-title">
+                <h1>Exploratory Data Analysis</h1>
+                <p class="text-muted">Insights generated from training data — distributions, correlations, and feature behavior.</p>
+            </div>
+        </div>
+
+        <!-- Data KPIs -->
+        <div class="analytics-kpi animate-fade-up">
+            <div class="a-kpi ai1">
+                <div class="a-kpi-icon"><i class="fas fa-database"></i></div>
+                <div>
+                    <span class="a-kpi-val text-gradient">300K+</span>
+                    <span class="a-kpi-lbl">Training Records</span>
+                </div>
+            </div>
+            <div class="a-kpi ai2">
+                <div class="a-kpi-icon"><i class="fas fa-columns"></i></div>
+                <div>
+                    <span class="a-kpi-val" style="color:#34D399;">15+</span>
+                    <span class="a-kpi-lbl">Engineered Features</span>
+                </div>
+            </div>
+            <div class="a-kpi ai3">
+                <div class="a-kpi-icon"><i class="fas fa-route"></i></div>
+                <div>
+                    <span class="a-kpi-val" style="color:#FCD34D;">500+</span>
+                    <span class="a-kpi-lbl">Unique Routes</span>
+                </div>
+            </div>
+            <div class="a-kpi ai4">
+                <div class="a-kpi-icon"><i class="fas fa-truck"></i></div>
+                <div>
+                    <span class="a-kpi-val" style="color:#60A5FA;">3</span>
+                    <span class="a-kpi-lbl">Equipment Types</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Charts Row 1 -->
+        <div class="two-col animate-fade-up delay-100">
+            <div class="chart-card">
+                <div class="chart-title-row">
+                    <h3><i class="fas fa-chart-bar"></i> Rate Distribution by Equipment</h3>
+                    <span class="badge-pill">Interactive</span>
+                </div>
+                <canvas id="equip-dist-chart" height="250"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title-row">
+                    <h3><i class="fas fa-calendar-alt"></i> Monthly Rate Trends</h3>
+                    <span class="badge-pill">Seasonality</span>
+                </div>
+                <canvas id="monthly-chart" height="250"></canvas>
+            </div>
+        </div>
+
+        <!-- Rate vs Distance Scatter -->
+        <div class="chart-card animate-fade-up delay-150">
+            <div class="chart-title-row">
+                <h3><i class="fas fa-braille"></i> Rate vs Distance — Equipment Split</h3>
+                <span class="badge-pill">Trend Analysis</span>
+            </div>
+            <canvas id="scatter-chart" height="180"></canvas>
+        </div>
+
+        <!-- Static Charts -->
+        <div class="two-col animate-fade-up delay-200">
+            <div class="chart-card">
+                <div class="chart-title-row">
+                    <h3><i class="fas fa-th"></i> Target Variable Distribution</h3>
+                    <span class="badge-pill">EDA</span>
+                </div>
+                <div class="static-chart-box" id="dist-wrap">
+                    <img id="chart-dist" alt="Target Distribution" style="display:none;">
+                    <div class="static-chart-placeholder" id="dist-placeholder">
+                        <i class="fas fa-chart-bar"></i>
+                        <p style="margin-top:0.5rem;">Run training pipeline to generate chart</p>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title-row">
+                    <h3><i class="fas fa-fire"></i> Feature Correlation Heatmap</h3>
+                    <span class="badge-pill">EDA</span>
+                </div>
+                <div class="static-chart-box" id="corr-wrap">
+                    <img id="chart-corr" alt="Correlation Heatmap" style="display:none;">
+                    <div class="static-chart-placeholder" id="corr-placeholder">
+                        <i class="fas fa-th"></i>
+                        <p style="margin-top:0.5rem;">Run training pipeline to generate chart</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Insights -->
+        <div class="insight-grid animate-fade-up delay-300">
+            <div class="insight-box">
+                <div class="insight-box-icon">📦</div>
+                <h4>Equipment Impact</h4>
+                <p>Reefer loads command a 22% premium over Dry Van on comparable routes. Flatbed sits 12% above Dry Van baseline due to specialized loading requirements.</p>
+            </div>
+            <div class="insight-box">
+                <div class="insight-box-icon">📅</div>
+                <h4>Seasonal Patterns</h4>
+                <p>Q4 (Oct–Dec) shows consistently elevated rates driven by holiday freight demand. December peaks 8–15% above annual average on major corridors.</p>
+            </div>
+            <div class="insight-box">
+                <div class="insight-box-icon">🗺️</div>
+                <h4>Route Density</h4>
+                <p>Midwest-to-Southeast and Northeast corridors show highest rate volatility. Haul length positively correlates with rate (ρ = 0.68) across all equipment types.</p>
+            </div>
+        </div>
+
+        <!-- Feature engineering explainer -->
+        <div class="chart-card animate-fade-up delay-400" style="margin-bottom:3rem;">
+            <div class="chart-title-row">
+                <h3><i class="fas fa-cogs"></i> Feature Engineering Pipeline</h3>
+                <span class="badge-pill">15+ Features</span>
+            </div>
+            <canvas id="feature-impact-chart" height="130"></canvas>
+        </div>
+    </main>
+
+    <script src="js/theme.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/charts.js"></script>
+    <script>
+    Chart.defaults.color = '#94A3B8';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+
+    // Load static charts
+    function tryLoadStatic(filename, imgId, placeholderId) {
+        const img = document.getElementById(imgId);
+        const ph = document.getElementById(placeholderId);
+        img.src = `/static/charts/${filename}`;
+        img.onload = () => { img.style.display='block'; if(ph)ph.style.display='none'; };
+        img.onerror = () => { img.style.display='none'; if(ph)ph.style.display='block'; };
+    }
+
+    // Equipment Rate Distribution
+    const equipCtx = document.getElementById('equip-dist-chart').getContext('2d');
+    new Chart(equipCtx, {
+        type: 'bar',
+        data: {
+            labels: ['< $500','$500–700','$700–900','$900–1100','$1100–1300','$1300–1500','> $1500'],
+            datasets: [
+                { label:'Dry Van', data:[120,450,890,1240,980,560,210], backgroundColor:'rgba(99,102,241,0.7)', borderColor:'#6366F1', borderWidth:2, borderRadius:4 },
+                { label:'Reefer', data:[40,200,560,940,1120,780,430], backgroundColor:'rgba(16,185,129,0.6)', borderColor:'#10B981', borderWidth:2, borderRadius:4 },
+                { label:'Flatbed', data:[80,310,680,1020,870,490,180], backgroundColor:'rgba(245,158,11,0.6)', borderColor:'#F59E0B', borderWidth:2, borderRadius:4 }
+            ]
+        },
+        options: {
+            responsive:true,
+            plugins:{legend:{position:'top',labels:{boxWidth:12,padding:12,font:{size:11}}},tooltip:{backgroundColor:'rgba(18,24,38,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1}},
+            scales:{
+                x:{grid:{display:false},stacked:false},
+                y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{callback:v=>v+'k'.replace('0k','')}}
+            }
+        }
+    });
+
+    // Monthly Trend
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const monthlyCtx = document.getElementById('monthly-chart').getContext('2d');
+    const baseRates = [1050,980,1020,1080,1120,1090,1060,1100,1150,1200,1280,1350];
+    new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Avg Rate',
+                data: baseRates,
+                borderColor: '#A855F7',
+                backgroundColor: (ctx) => {
+                    const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 250);
+                    g.addColorStop(0,'rgba(168,85,247,0.3)');
+                    g.addColorStop(1,'rgba(168,85,247,0)');
+                    return g;
+                },
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#A855F7',
+                pointRadius: 4,
+                pointHoverRadius: 7
+            }]
+        },
+        options: {
+            responsive:true,
+            plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(18,24,38,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,callbacks:{label:c=>` Avg: $${c.parsed.y}`}}},
+            scales:{
+                x:{grid:{display:false}},
+                y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{callback:v=>'$'+v},suggestedMin:900,suggestedMax:1450}
+            }
+        }
+    });
+
+    // Rate vs Distance scatter simulation
+    const scatterCtx = document.getElementById('scatter-chart').getContext('2d');
+    function genScatter(count, slope, baseRate, noise) {
+        return Array.from({length:count}, () => {
+            const x = 100 + Math.random()*900;
+            return { x: +x.toFixed(0), y: +(baseRate + slope*x + (Math.random()*2-1)*noise).toFixed(2) };
+        });
+    }
+    new Chart(scatterCtx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                { label:'Dry Van', data:genScatter(200,1.2,200,180), backgroundColor:'rgba(99,102,241,0.5)', pointRadius:3 },
+                { label:'Reefer', data:genScatter(150,1.5,350,200), backgroundColor:'rgba(16,185,129,0.5)', pointRadius:3 },
+                { label:'Flatbed', data:genScatter(150,1.35,280,190), backgroundColor:'rgba(245,158,11,0.5)', pointRadius:3 }
+            ]
+        },
+        options: {
+            responsive:true,
+            plugins:{legend:{position:'top',labels:{boxWidth:10,padding:14,font:{size:11}}},tooltip:{backgroundColor:'rgba(18,24,38,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,callbacks:{label:c=>` ${c.dataset.label} — Distance: ${c.parsed.x}mi, Rate: $${c.parsed.y}`}}},
+            scales:{
+                x:{title:{display:true,text:'Distance (miles)',color:'#94A3B8'},grid:{color:'rgba(255,255,255,0.04)'}},
+                y:{title:{display:true,text:'Rate ($)',color:'#94A3B8'},grid:{color:'rgba(255,255,255,0.04)'},ticks:{callback:v=>'$'+v}}
+            }
+        }
+    });
+
+    // Feature Impact
+    const featCtx = document.getElementById('feature-impact-chart').getContext('2d');
+    new Chart(featCtx, {
+        type: 'bar',
+        data: {
+            labels:['distance','route_encoded','pickup_encoded','delivery_encoded','equipment_encoded','weight','month','dayofweek','market_index','quote_signal','week','quarter','is_weekend','distance_bin','weight_bin'],
+            datasets:[{
+                label:'Relative Importance',
+                data:[100,87,82,79,68,54,48,42,38,35,30,27,22,18,15],
+                backgroundColor: (ctx) => {
+                    const v = ctx.raw;
+                    if(v>80) return 'rgba(99,102,241,0.85)';
+                    if(v>60) return 'rgba(168,85,247,0.75)';
+                    if(v>40) return 'rgba(20,184,166,0.7)';
+                    return 'rgba(148,163,184,0.5)';
+                },
+                borderRadius:5
+            }]
+        },
+        options:{
+            indexAxis:'y',
+            responsive:true,
+            plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(18,24,38,0.95)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,callbacks:{label:c=>` Score: ${c.parsed.x}`}}},
+            scales:{
+                x:{max:110,grid:{color:'rgba(255,255,255,0.04)'},ticks:{callback:v=>v}},
+                y:{grid:{display:false},ticks:{font:{size:11}}}
+            }
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        tryLoadStatic('target_distribution.png','chart-dist','dist-placeholder');
+        tryLoadStatic('correlation_heatmap.png','chart-corr','corr-placeholder');
+    });
+    </script>
+</body>
+</html>

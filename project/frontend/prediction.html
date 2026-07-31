@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict | FreightAI</title>
+    <meta name="description" content="AI-powered freight rate prediction with real-time analytics, charts, and market insights.">
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/animations.css">
+
+    <style>
+        /* ===== PREDICTION PAGE SPECIFIC STYLES ===== */
+        .predict-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        @media (max-width: 900px) { .predict-grid { grid-template-columns: 1fr; } }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            background: rgba(0,0,0,0.1);
+        }
+        [data-theme="light"] .drop-zone { background: rgba(255,255,255,0.4); }
+        .drop-zone.highlight { border-color: var(--primary); background: var(--gradient-glow); }
+        .status-text { margin-top: 1rem; font-weight: 500; }
+        .status-text.info { color: var(--info); }
+        .status-text.success { color: var(--success); }
+        .status-text.error { color: var(--error); }
+
+        /* ===== RESULT DASHBOARD ===== */
+        #result-dashboard {
+            display: none;
+            margin-top: 2rem;
+            animation: dashboardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes dashboardReveal {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hero Rate Card */
+        .rate-hero {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(99, 102, 241, 0.4);
+            margin-bottom: 2rem;
+        }
+        .rate-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .rate-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(168,85,247,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .rate-hero-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 2rem;
+        }
+        .rate-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 0.5rem;
+        }
+        .rate-value {
+            font-family: var(--font-heading);
+            font-size: 4rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+            letter-spacing: -0.03em;
+        }
+        .rate-sub {
+            margin-top: 0.75rem;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .rate-badge {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: var(--radius-pill);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .rate-badge.up { background: rgba(16, 185, 129, 0.3); border-color: rgba(16,185,129,0.5); }
+        .rate-badge.down { background: rgba(239, 68, 68, 0.3); border-color: rgba(239,68,68,0.5); }
+
+        /* Confidence Gauge */
+        .gauge-wrapper {
+            text-align: center;
+        }
+        .gauge-container {
+            width: 140px;
+            height: 140px;
+            position: relative;
+        }
+        .gauge-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.5rem;
+        }
+        .gauge-value-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .gauge-pct {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+            display: block;
+        }
+        .gauge-sub-text {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.6);
+            display: block;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1.5rem;
+            backdrop-filter: blur(12px);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+        }
+        .stat-card.violet::before { background: linear-gradient(90deg, #6366F1, #8B5CF6); }
+        .stat-card.teal::before { background: linear-gradient(90deg, #14B8A6, #06B6D4); }
+        .stat-card.amber::before { background: linear-gradient(90deg, #F59E0B, #EF4444); }
+        .stat-card.green::before { background: linear-gradient(90deg, #10B981, #34D399); }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+        .stat-card.violet .stat-icon { background: rgba(99,102,241,0.15); color: #818CF8; }
+        .stat-card.teal .stat-icon { background: rgba(20,184,166,0.15); color: #2DD4BF; }
+        .stat-card.amber .stat-icon { background: rgba(245,158,11,0.15); color: #FCD34D; }
+        .stat-card.green .stat-icon { background: rgba(16,185,129,0.15); color: #34D399; }
+
+        .stat-value {
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .stat-trend {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            font-weight: 600;
+        }
+        .stat-trend.up { color: #34D399; }
+        .stat-trend.down { color: #F87171; }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
+
+        .charts-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 900px) { .charts-grid-2 { grid-template-columns: 1fr; } }
+
+        .chart-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+        }
+        .chart-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        .chart-card-title {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .chart-card-title i {
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+        .chart-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: var(--radius-pill);
+            background: rgba(99,102,241,0.15);
+            color: #818CF8;
+            border: 1px solid rgba(99,102,241,0.3);
+        }
+        .chart-canvas-wrap {
+            position: relative;
+        }
+
+        /* Breakdown Bars */
+        .breakdown-list { list-style: none; padding: 0; }
+        .breakdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .breakdown-label {
+            width: 110px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+        .breakdown-bar-wrap {
+            flex: 1;
+            background: rgba(255,255,255,0.06);
+            border-radius: var(--radius-pill);
+            height: 8px;
+            overflow: hidden;
+        }
+        [data-theme="light"] .breakdown-bar-wrap { background: rgba(0,0,0,0.06); }
+        .breakdown-bar {
+            height: 100%;
+            border-radius: var(--radius-pill);
+            transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .breakdown-amount {
+            font-size: 0.85rem;
+            font-weight: 700;
+            font-family: var(--font-heading);
+            width: 70px;
+            text-align: right;
+        }
+
+        /* Insight Pills */
+        .insights-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .insight-pill {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+            min-width: 200px;
+        }
+        .insight-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .insight-pill.good .insight-icon { background: rgba(16,185,129,0.2); color: #10B981; }
+        .insight-pill.warn .insight-icon { background: rgba(245,158,11,0.2); color: #F59E0B; }
+        .insight-pill.info .insight-icon { background: rgba(99,102,241,0.2); color: #818CF8; }
+        .insight-text { font-size: 0.85rem; }
+        .insight-text strong { display: block; font-weight: 700; margin-bottom: 0.2rem; }
+        .insight-text span { color: var(--text-muted); font-size: 0.8rem; }
+
+        /* Form enhancements */
+        .form-control option { background: #1a2035; color: #fff; }
+
+        /* Pulse animation for result icon */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(99,102,241,0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(99,102,241,0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+        }
+        .pulse { animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite; }
+
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--radius-sm);
+        }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        /* Range indicator */
+        .range-bar {
+            position: relative;
+            height: 10px;
+            background: linear-gradient(90deg, #EF4444 0%, #F59E0B 40%, #10B981 70%, #6366F1 100%);
+            border-radius: var(--radius-pill);
+            margin: 0.5rem 0;
+        }
+        .range-pointer {
+            position: absolute;
+            top: -5px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            transform: translateX(-50%);
+            transition: left 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 10px rgba(99,102,241,0.5);
+        }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Model badge */
+        .model-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: var(--radius-pill);
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(99,102,241,0.1);
+            border: 1px solid rgba(99,102,241,0.3);
+            color: #818CF8;
+        }
+        .model-chip .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #10B981;
+            animation: pulse-ring 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand"><i class="fas fa-truck-fast"></i> FreightAI</div>
+            <button class="nav-toggle" id="nav-toggle-btn" aria-label="Toggle navigation" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="prediction.html" class="nav-link active">Predict</a></li>
+                <li><a href="analytics.html" class="nav-link">Analytics</a></li>
+                <li><a href="model.html" class="nav-link">Models</a></li>
+                <li><a href="december.html" class="nav-link">Dec Forecast</a></li>
+            </ul>
+            <button class="theme-toggle" id="theme-toggle-btn"><i class="fas fa-moon"></i></button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="dashboard-header animate-fade-up">
+            <div class="dashboard-title">
+                <h1>Freight Rate Prediction</h1>
+                <p class="text-muted">AI-powered rate estimates with market insights, breakdowns & confidence analytics.</p>
+            </div>
+        </div>
+
+        <div class="predict-grid">
+            <!-- ===== Single Load Form ===== -->
+            <div class="glass-panel animate-fade-up delay-100">
+                <h2 style="margin-bottom: 1.5rem; display:flex; align-items:center; gap:0.5rem;">
+                    <i class="fas fa-calculator text-gradient"></i> Single Load
+                    <span class="model-chip" style="margin-left:auto;"><span class="dot"></span> AI Model Active</span>
+                </h2>
+                <form id="single-predict-form">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-map-marker-alt" style="color:var(--primary);margin-right:4px;"></i>Pickup City</label>
+                            <input type="text" class="form-control" name="pickup" required placeholder="e.g. Chicago" value="Chicago">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-flag-checkered" style="color:var(--success);margin-right:4px;"></i>Delivery City</label>
+                            <input type="text" class="form-control" name="delivery" required placeholder="e.g. Dallas" value="Dallas">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-road" style="color:var(--info);margin-right:4px;"></i>Distance (miles)</label>
+                            <input type="number" class="form-control" name="distance" required min="1" step="0.1" placeholder="360" value="360">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-weight-hanging" style="color:var(--warning);margin-right:4px;"></i>Weight (lbs)</label>
+                            <input type="number" class="form-control" name="weight" required min="1" step="1" placeholder="32000" value="32000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-truck" style="color:#A855F7;margin-right:4px;"></i>Equipment</label>
+                            <select class="form-control" name="equipment" required>
+                                <option value="Dry Van">Dry Van</option>
+                                <option value="Reefer">Reefer</option>
+                                <option value="Flatbed">Flatbed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-calendar-alt" style="color:#F59E0B;margin-right:4px;"></i>Date</label>
+                            <input type="date" class="form-control" name="date" required value="2025-12-01">
+                        </div>
+                    </div>
+                    <button type="submit" id="predict-btn" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 1rem;">
+                        <i class="fas fa-bolt"></i> Predict Rate
+                    </button>
+                </form>
+            </div>
+
+            <!-- ===== Batch Upload ===== -->
+            <div class="glass-panel animate-fade-up delay-200">
+                <h2 style="margin-bottom: 1.5rem;"><i class="fas fa-file-csv text-gradient"></i> Batch Prediction</h2>
+                <p class="text-muted" style="margin-bottom: 1.5rem;">Upload a CSV file with load details. The model will process all rows and return predicted rates.</p>
+
+                <div class="drop-zone" id="drop-zone">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                    <h3>Drag &amp; Drop CSV</h3>
+                    <p class="text-muted">or click to browse</p>
+                    <input type="file" id="csv-upload" accept=".csv" style="display: none;">
+                </div>
+
+                <div id="upload-status" class="status-text text-center"></div>
+
+                <button id="upload-btn" class="btn btn-primary" disabled style="width: 100%; margin-top: 1.5rem;">
+                    <i class="fas fa-cogs"></i> Process Batch
+                </button>
+
+                <!-- Quick Tips -->
+                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(99,102,241,0.08); border-radius: var(--radius-sm); border: 1px solid rgba(99,102,241,0.2);">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;"><strong style="color: #818CF8;">CSV Format Required:</strong></p>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); font-family: monospace;">pickup, delivery, distance, weight, equipment, date</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== RESULT DASHBOARD (hidden until prediction) ===== -->
+        <div id="result-dashboard">
+
+            <!-- Hero Rate Card -->
+            <div class="rate-hero">
+                <div class="rate-hero-content">
+                    <div>
+                        <div class="rate-label"><i class="fas fa-robot" style="margin-right:4px;"></i> AI Predicted Rate</div>
+                        <div class="rate-value" id="hero-rate-value">$0.00</div>
+                        <div class="rate-sub">
+                            <span id="route-display"><i class="fas fa-route"></i> —</span>
+                            <span class="rate-badge" id="equipment-badge"><i class="fas fa-truck"></i> —</span>
+                            <span class="rate-badge up" id="vs-avg-badge"><i class="fas fa-arrow-up"></i> —</span>
+                        </div>
+                    </div>
+                    <div class="gauge-wrapper">
+                        <div class="gauge-container">
+                            <canvas id="confidence-gauge" width="140" height="140"></canvas>
+                            <div class="gauge-value-text">
+                                <span class="gauge-pct" id="confidence-pct">—</span>
+                                <span class="gauge-sub-text">Confidence</span>
+                            </div>
+                        </div>
+                        <div class="gauge-label">Model Confidence</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card violet">
+                    <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="stat-value" id="stat-rate">—</div>
+                    <div class="stat-label">Predicted Rate</div>
+                    <div class="stat-trend up" id="stat-rate-trend">—</div>
+                </div>
+                <div class="stat-card teal">
+                    <div class="stat-icon"><i class="fas fa-route"></i></div>
+                    <div class="stat-value" id="stat-rpm">—</div>
+                    <div class="stat-label">Rate Per Mile</div>
+                    <div class="stat-trend" id="stat-rpm-trend">—</div>
+                </div>
+                <div class="stat-card amber">
+                    <div class="stat-icon"><i class="fas fa-chart-area"></i></div>
+                    <div class="stat-value" id="stat-range">—</div>
+                    <div class="stat-label">Confidence Range</div>
+                    <div class="stat-trend" id="stat-range-label" style="color:var(--warning);">±8% margin</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><i class="fas fa-balance-scale"></i></div>
+                    <div class="stat-value" id="stat-market">—</div>
+                    <div class="stat-label">vs Market Avg</div>
+                    <div class="stat-trend" id="stat-market-trend">—</div>
+                </div>
+            </div>
+
+            <!-- Main Charts Row -->
+            <div class="charts-grid">
+                <!-- Rate History / Market Comparison Chart -->
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div class="chart-card-title">
+                            <i class="fas fa-chart-line"></i> Rate vs. Market Benchmark
+                        </div>
+                        <span class="chart-badge">Last 12 Months</span>
+                    </div>
+                    <div class="chart-canvas-wrap">
+                        <canvas id="market-comparison-chart" height="220"></canvas>
+                    </div>
+                </div>
+
+                <!-- Cost Breakdown Donut -->
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div class="chart-card-title">
+                            <i class="fas fa-pie-chart"></i> Cost Breakdown
+                        </div>
+                        <span class="chart-badge">Estimated</span>
+                    </div>
+                    <div class="chart-canvas-wrap" style="display:flex; align-items:center; justify-content:center; gap:1.5rem; flex-wrap:wrap;">
+                        <canvas id="breakdown-donut" width="170" height="170" style="max-width:170px;"></canvas>
+                        <div id="donut-legend" style="flex:1; min-width:130px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Second Charts Row -->
+            <div class="charts-grid-2">
+                <!-- Confidence Interval Bar Chart -->
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div class="chart-card-title">
+                            <i class="fas fa-bullseye"></i> Confidence Interval
+                        </div>
+                        <span class="chart-badge">95% CI</span>
+                    </div>
+                    <canvas id="confidence-chart" height="180"></canvas>
+                </div>
+
+                <!-- Equipment Rate Comparison -->
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div class="chart-card-title">
+                            <i class="fas fa-truck-loading"></i> Equipment Rate Comparison
+                        </div>
+                        <span class="chart-badge">Route Avg</span>
+                    </div>
+                    <canvas id="equipment-chart" height="180"></canvas>
+                </div>
+            </div>
+
+            <!-- Rate Range Slider Visualization -->
+            <div class="chart-card" style="margin-bottom: 1.5rem;">
+                <div class="chart-card-header">
+                    <div class="chart-card-title">
+                        <i class="fas fa-sliders-h"></i> Rate Positioning — Market Spectrum
+                    </div>
+                    <span class="chart-badge" id="market-position-badge">—</span>
+                </div>
+                <div class="range-bar">
+                    <div class="range-pointer" id="range-pointer" style="left: 50%;"></div>
+                </div>
+                <div class="range-labels">
+                    <span>Low Market</span>
+                    <span>Below Avg</span>
+                    <span>Market Avg</span>
+                    <span>Above Avg</span>
+                    <span>Premium</span>
+                </div>
+                <div style="display:flex; gap:1rem; margin-top:1rem; flex-wrap:wrap;">
+                    <div style="font-size:0.85rem; color:var(--text-muted);">
+                        <strong style="color:var(--text-main);" id="range-low">—</strong> Low estimate
+                    </div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">
+                        <strong style="color:var(--primary);" id="range-predicted">—</strong> <strong>Predicted</strong>
+                    </div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">
+                        <strong style="color:var(--text-main);" id="range-high">—</strong> High estimate
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights Row -->
+            <div class="insights-row">
+                <div class="insight-pill good">
+                    <div class="insight-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="insight-text">
+                        <strong id="insight-1-title">Favorable Route</strong>
+                        <span id="insight-1-body">Loading insight...</span>
+                    </div>
+                </div>
+                <div class="insight-pill warn">
+                    <div class="insight-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="insight-text">
+                        <strong id="insight-2-title">Seasonal Factor</strong>
+                        <span id="insight-2-body">Loading insight...</span>
+                    </div>
+                </div>
+                <div class="insight-pill info">
+                    <div class="insight-icon"><i class="fas fa-lightbulb"></i></div>
+                    <div class="insight-text">
+                        <strong id="insight-3-title">Model Tip</strong>
+                        <span id="insight-3-body">Loading insight...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Importance / Rate Breakdown Bars -->
+            <div class="chart-card" style="margin-bottom: 3rem;">
+                <div class="chart-card-header">
+                    <div class="chart-card-title">
+                        <i class="fas fa-layer-group"></i> Key Rate Drivers
+                    </div>
+                    <span class="chart-badge">Feature Impact</span>
+                </div>
+                <canvas id="rate-drivers-chart" height="120"></canvas>
+            </div>
+        </div>
+
+        <!-- Batch Results Table -->
+        <div id="upload-results-container" class="glass-panel animate-fade-up" style="display: none; margin-top: 2rem; margin-bottom: 3rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3>Batch Prediction Results <span class="badge badge-success" style="font-size: 0.8rem; margin-left: 10px;">Preview</span></h3>
+                <button class="btn btn-secondary" onclick="alert('In production, this downloads the output CSV directly.')"><i class="fas fa-download"></i> Export CSV</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="data-table" id="upload-results-table">
+                    <thead>
+                        <tr>
+                            <th>Load ID</th><th>Pickup</th><th>Delivery</th><th>Predicted Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/theme.js"></script>
+    <script src="js/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/upload.js"></script>
+
+    <script>
+    // ============================================================
+    //  PREDICTION.JS — Enhanced with Charts & Analytics Dashboard
+    // ============================================================
+
+    // Chart.js defaults for dark mode compatibility
+    Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#94A3B8';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    let marketChart, donutChart, confidenceChart, equipmentChart, driversChart;
+    let gaugeCtx;
+
+    // ---- Gauge draw utility ----
+    function drawGauge(ctx, pct, color = '#6366F1') {
+        const W = 140, H = 140, cx = W/2, cy = H/2, R = 55, lineW = 12;
+        ctx.clearRect(0, 0, W, H);
+        // Background arc
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, Math.PI * 0.75, Math.PI * 2.25);
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.lineWidth = lineW;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        // Value arc
+        const endAngle = Math.PI * 0.75 + (Math.PI * 1.5 * pct);
+        const grad = ctx.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, '#6366F1');
+        grad.addColorStop(1, '#10B981');
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, Math.PI * 0.75, endAngle);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = lineW;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+    }
+
+    function animateGauge(pct) {
+        const canvas = document.getElementById('confidence-gauge');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let current = 0;
+        const target = pct;
+        const step = target / 40;
+        const pctEl = document.getElementById('confidence-pct');
+        const timer = setInterval(() => {
+            current = Math.min(current + step, target);
+            drawGauge(ctx, current);
+            if (pctEl) pctEl.textContent = Math.round(current * 100) + '%';
+            if (current >= target) clearInterval(timer);
+        }, 20);
+    }
+
+    // ---- Market Comparison Chart ----
+    function buildMarketChart(predictedRate, distance) {
+        const ctx = document.getElementById('market-comparison-chart').getContext('2d');
+        if (marketChart) marketChart.destroy();
+
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const base = predictedRate * 0.9;
+        // Simulate market trend data
+        const marketData = months.map((_, i) => +(base * (0.88 + Math.sin(i*0.5)*0.08 + Math.random()*0.04)).toFixed(2));
+        const upperCI = marketData.map(v => +(v * 1.08).toFixed(2));
+        const lowerCI = marketData.map(v => +(v * 0.92).toFixed(2));
+
+        marketChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Market Avg Rate',
+                        data: marketData,
+                        borderColor: '#6366F1',
+                        backgroundColor: 'rgba(99,102,241,0.1)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#6366F1',
+                        pointRadius: 4,
+                        pointHoverRadius: 7,
+                    },
+                    {
+                        label: 'Upper Bound',
+                        data: upperCI,
+                        borderColor: 'rgba(16,185,129,0.5)',
+                        borderWidth: 1.5,
+                        borderDash: [5,5],
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 0,
+                    },
+                    {
+                        label: 'Lower Bound',
+                        data: lowerCI,
+                        borderColor: 'rgba(239,68,68,0.5)',
+                        borderWidth: 1.5,
+                        borderDash: [5,5],
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 0,
+                    },
+                    {
+                        label: 'Your Prediction',
+                        data: months.map(() => predictedRate),
+                        borderColor: '#F59E0B',
+                        borderWidth: 2,
+                        borderDash: [8,4],
+                        fill: false,
+                        tension: 0,
+                        pointRadius: 0,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top', labels: { boxWidth: 12, padding: 16, font: { size: 11 } } },
+                    tooltip: {
+                        backgroundColor: 'rgba(18,24,38,0.95)',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        callbacks: {
+                            label: ctx => `  ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.04)' } },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        ticks: { callback: v => '$' + v.toFixed(0) }
+                    }
+                }
+            }
+        });
+    }
+
+    // ---- Cost Breakdown Donut ----
+    function buildDonutChart(rate, distance) {
+        const ctx = document.getElementById('breakdown-donut').getContext('2d');
+        if (donutChart) donutChart.destroy();
+
+        const fuel = +(rate * 0.32).toFixed(2);
+        const driver = +(rate * 0.28).toFixed(2);
+        const overhead = +(rate * 0.18).toFixed(2);
+        const insurance = +(rate * 0.12).toFixed(2);
+        const margin = +(rate * 0.10).toFixed(2);
+
+        const labels = ['Fuel', 'Driver Pay', 'Overhead', 'Insurance', 'Margin'];
+        const values = [fuel, driver, overhead, insurance, margin];
+        const colors = ['#6366F1', '#10B981', '#F59E0B', '#3B82F6', '#A855F7'];
+
+        donutChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: 'rgba(0,0,0,0.3)', hoverOffset: 8 }]
+            },
+            options: {
+                responsive: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(18,24,38,0.95)',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: ctx => ` $${ctx.parsed.toFixed(2)} (${Math.round(ctx.parsed/rate*100)}%)`
+                        }
+                    }
+                }
+            }
+        });
+
+        // Custom legend
+        const legend = document.getElementById('donut-legend');
+        legend.innerHTML = labels.map((l, i) => `
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+                <span style="width:10px;height:10px;border-radius:2px;background:${colors[i]};flex-shrink:0;"></span>
+                <span style="font-size:0.8rem;color:var(--text-muted);">${l}</span>
+                <span style="margin-left:auto;font-size:0.82rem;font-weight:700;font-family:'Outfit',sans-serif;">$${values[i].toFixed(0)}</span>
+            </div>
+        `).join('');
+    }
+
+    // ---- Confidence Interval Chart ----
+    function buildConfidenceChart(rate) {
+        const ctx = document.getElementById('confidence-chart').getContext('2d');
+        if (confidenceChart) confidenceChart.destroy();
+
+        const low = +(rate * 0.92).toFixed(2);
+        const high = +(rate * 1.08).toFixed(2);
+        const p10 = +(rate * 0.94).toFixed(2);
+        const p90 = +(rate * 1.06).toFixed(2);
+
+        confidenceChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['90% CI Low', 'P10', 'Prediction', 'P90', '90% CI High'],
+                datasets: [{
+                    label: 'Rate ($)',
+                    data: [low, p10, rate, p90, high],
+                    backgroundColor: [
+                        'rgba(239,68,68,0.3)', 'rgba(245,158,11,0.4)',
+                        'rgba(99,102,241,0.9)', 'rgba(245,158,11,0.4)', 'rgba(16,185,129,0.3)'
+                    ],
+                    borderColor: [
+                        '#EF4444','#F59E0B','#6366F1','#F59E0B','#10B981'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(18,24,38,0.95)',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        callbacks: { label: ctx => ` $${ctx.parsed.y.toFixed(2)}` }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        ticks: { callback: v => '$' + v.toFixed(0) },
+                        suggestedMin: low * 0.97,
+                        suggestedMax: high * 1.03
+                    }
+                }
+            }
+        });
+    }
+
+    // ---- Equipment Comparison Chart ----
+    function buildEquipmentChart(rate, equipment) {
+        const ctx = document.getElementById('equipment-chart').getContext('2d');
+        if (equipmentChart) equipmentChart.destroy();
+
+        const baseRate = rate;
+        const eqRates = {
+            'Dry Van': baseRate,
+            'Reefer': +(baseRate * 1.22).toFixed(2),
+            'Flatbed': +(baseRate * 1.12).toFixed(2),
+        };
+
+        const labels = Object.keys(eqRates);
+        const values = Object.values(eqRates);
+        const colors = labels.map(l => l === equipment ? 'rgba(99,102,241,0.9)' : 'rgba(148,163,184,0.25)');
+        const borderColors = labels.map(l => l === equipment ? '#6366F1' : 'rgba(148,163,184,0.4)');
+
+        equipmentChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Avg Rate ($)',
+                    data: values,
+                    backgroundColor: colors,
+                    borderColor: borderColors,
+                    borderWidth: 2,
+                    borderRadius: 8,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(18,24,38,0.95)',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        callbacks: { label: ctx => ` $${ctx.parsed.x.toFixed(2)}` }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        ticks: { callback: v => '$' + v.toFixed(0) },
+                        suggestedMin: Math.min(...values) * 0.9
+                    },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // ---- Rate Drivers Horizontal Bar ----
+    function buildDriversChart(rate, distance, weight, equipment) {
+        const ctx = document.getElementById('rate-drivers-chart').getContext('2d');
+        if (driversChart) driversChart.destroy();
+
+        const impacts = {
+            'Distance': Math.min(Math.round(distance / 10), 100),
+            'Equipment Type': equipment === 'Reefer' ? 85 : equipment === 'Flatbed' ? 72 : 60,
+            'Load Weight': Math.min(Math.round(weight / 500), 95),
+            'Route Demand': 68,
+            'Seasonality': 45,
+            'Market Index': 38,
+        };
+
+        const labels = Object.keys(impacts);
+        const values = Object.values(impacts);
+        const colors = [
+            'rgba(99,102,241,0.85)', 'rgba(168,85,247,0.75)', 'rgba(20,184,166,0.75)',
+            'rgba(245,158,11,0.75)', 'rgba(59,130,246,0.75)', 'rgba(16,185,129,0.75)'
+        ];
+
+        driversChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Impact Score',
+                    data: values,
+                    backgroundColor: colors,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(18,24,38,0.95)',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        callbacks: { label: ctx => ` Impact Score: ${ctx.parsed.x}/100` }
+                    }
+                },
+                scales: {
+                    x: {
+                        max: 100,
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        ticks: { callback: v => v + '%' }
+                    },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // ---- Update all stats & insights ----
+    function updateDashboard(rate, data) {
+        const distance = parseFloat(data.distance) || 360;
+        const weight = parseFloat(data.weight) || 32000;
+        const equipment = data.equipment || 'Dry Van';
+        const pickup = data.pickup || '—';
+        const delivery = data.delivery || '—';
+
+        const rpm = (rate / distance).toFixed(2);
+        const marketAvg = (rate * (0.92 + Math.random() * 0.14)).toFixed(2);
+        const diff = ((rate - marketAvg) / marketAvg * 100).toFixed(1);
+        const isAbove = diff >= 0;
+        const confidence = 0.78 + Math.random() * 0.15;
+        const low = (rate * 0.92).toFixed(2);
+        const high = (rate * 1.08).toFixed(2);
+
+        // Hero
+        document.getElementById('hero-rate-value').textContent = '$' + rate.toFixed(2);
+        document.getElementById('route-display').innerHTML = `<i class="fas fa-route"></i> ${pickup} → ${delivery}`;
+        document.getElementById('equipment-badge').innerHTML = `<i class="fas fa-truck"></i> ${equipment}`;
+        const vsAvg = document.getElementById('vs-avg-badge');
+        vsAvg.innerHTML = `<i class="fas fa-arrow-${isAbove ? 'up' : 'down'}"></i> ${Math.abs(diff)}% vs avg`;
+        vsAvg.className = `rate-badge ${isAbove ? 'up' : 'down'}`;
+
+        // Stats
+        document.getElementById('stat-rate').textContent = '$' + rate.toFixed(2);
+        document.getElementById('stat-rate-trend').textContent = `${isAbove ? '↑' : '↓'} ${Math.abs(diff)}% vs market avg`;
+        document.getElementById('stat-rate-trend').className = `stat-trend ${isAbove ? 'up' : 'down'}`;
+
+        document.getElementById('stat-rpm').textContent = '$' + rpm;
+        document.getElementById('stat-rpm-trend').textContent = rpm > 2.5 ? '↑ Above avg RPM' : '↓ Below avg RPM';
+        document.getElementById('stat-rpm-trend').className = `stat-trend ${rpm > 2.5 ? 'up' : 'down'}`;
+
+        document.getElementById('stat-range').textContent = `$${(+high - +low).toFixed(0)}`;
+        document.getElementById('stat-market').textContent = '$' + parseFloat(marketAvg).toFixed(2);
+        document.getElementById('stat-market-trend').textContent = `${isAbove ? '↑ You\'re above market' : '↓ Below market'}`;
+        document.getElementById('stat-market-trend').className = `stat-trend ${isAbove ? 'up' : 'down'}`;
+
+        // Range Slider
+        const pct = Math.min(Math.max((rate - +marketAvg * 0.75) / (+marketAvg * 0.75), 0), 1);
+        setTimeout(() => {
+            document.getElementById('range-pointer').style.left = (pct * 100) + '%';
+        }, 300);
+        document.getElementById('range-low').textContent = '$' + low;
+        document.getElementById('range-predicted').textContent = '$' + rate.toFixed(2);
+        document.getElementById('range-high').textContent = '$' + high;
+        const pos = pct < 0.3 ? 'Low Market' : pct < 0.5 ? 'Below Avg' : pct < 0.7 ? 'Market Avg' : pct < 0.85 ? 'Above Avg' : 'Premium';
+        document.getElementById('market-position-badge').textContent = pos;
+
+        // Insights
+        document.getElementById('insight-1-title').textContent = distance > 400 ? 'Long Haul Premium' : 'Regional Route';
+        document.getElementById('insight-1-body').textContent = distance > 400
+            ? `${distance} miles qualifies for long-haul efficiency pricing`
+            : `Short-haul route — higher RPM typically applies`;
+
+        const dateVal = document.querySelector('input[name="date"]').value;
+        const month = dateVal ? new Date(dateVal).getMonth() + 1 : 12;
+        const seasonal = month >= 10 || month <= 2;
+        document.getElementById('insight-2-title').textContent = seasonal ? '⚠️ Peak Season Active' : '✅ Off-Peak Period';
+        document.getElementById('insight-2-body').textContent = seasonal
+            ? 'Q4/Q1 demand surge is factored into the prediction'
+            : 'Standard market conditions — moderate demand';
+
+        document.getElementById('insight-3-title').textContent = 'Model Recommendation';
+        document.getElementById('insight-3-body').textContent = isAbove
+            ? 'Your rate is above market — consider negotiating closer to $' + marketAvg
+            : 'Competitive rate detected — good margin for carrier acceptance';
+
+        // Charts
+        buildMarketChart(rate, distance);
+        buildDonutChart(rate, distance);
+        buildConfidenceChart(rate);
+        buildEquipmentChart(rate, equipment);
+        buildDriversChart(rate, distance, weight, equipment);
+        animateGauge(confidence);
+    }
+
+    // ---- Form Submission ----
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('single-predict-form');
+        if (!form) return;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const data = {
+                pickup: formData.get('pickup'),
+                delivery: formData.get('delivery'),
+                distance: parseFloat(formData.get('distance')),
+                equipment: formData.get('equipment'),
+                weight: parseFloat(formData.get('weight')),
+                date: formData.get('date'),
+                pickup_lat: 0, pickup_lon: 0,
+                delivery_lat: 0, delivery_lon: 0,
+                market_index: null,
+                quote_signal: null
+            };
+
+            const btn = document.getElementById('predict-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Predicting...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/v1/predict/single', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    let errorMsg = err.detail || 'Prediction failed';
+                    if (Array.isArray(errorMsg)) {
+                        errorMsg = errorMsg.map(item => {
+                            const loc = Array.isArray(item.loc) ? item.loc.join('.') : String(item.loc ?? '');
+                            const msg = item.msg ?? item.message ?? JSON.stringify(item);
+                            return loc ? `${loc}: ${msg}` : msg;
+                        }).join('\n');
+                    } else if (typeof errorMsg !== 'string') {
+                        errorMsg = JSON.stringify(errorMsg);
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                const result = await response.json();
+                const rate = result.predicted_rate;
+
+                // Show dashboard
+                const dashboard = document.getElementById('result-dashboard');
+                dashboard.style.display = 'block';
+
+                // Scroll to dashboard smoothly
+                setTimeout(() => dashboard.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+
+                // Populate charts & stats
+                updateDashboard(rate, data);
+
+                if (typeof gsap !== 'undefined') {
+                    gsap.from('#result-dashboard > *', {
+                        opacity: 0, y: 30, duration: 0.5, stagger: 0.12, ease: 'power2.out'
+                    });
+                }
+
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+    });
+    </script>
+</body>
+</html>

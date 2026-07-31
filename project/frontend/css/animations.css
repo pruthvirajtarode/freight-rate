@@ -1,0 +1,139 @@
+/*
+animations.css — Premium Keyframes and Transition Utility Classes
+Enhanced with micro-animations for enterprise-grade UI feel.
+*/
+
+/* ===== FADE IN UP ===== */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-up {
+    opacity: 0;
+    animation: fadeInUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Delay Utilities */
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+
+/* ===== FADE IN ===== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.animate-fade-in { animation: fadeIn 0.5s ease forwards; }
+
+/* ===== SCALE IN ===== */
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in { animation: scaleIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+/* ===== SLIDE IN FROM LEFT ===== */
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-left { animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+/* ===== PULSE GLOW (CTA button) ===== */
+@keyframes pulseGlow {
+    0%   { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.65); }
+    70%  { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+    100% { box-shadow: 0 0 0 0  rgba(99, 102, 241, 0); }
+}
+.animate-pulse-glow { animation: pulseGlow 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+/* ===== SPIN ===== */
+@keyframes spin { to { transform: rotate(360deg); } }
+.animate-spin   { animation: spin 1s linear infinite; }
+
+/* ===== LOADING SKELETON ===== */
+@keyframes shimmer {
+    0%   { background-position: -1000px 0; }
+    100% { background-position:  1000px 0; }
+}
+.skeleton {
+    background: rgba(255,255,255,0.04);
+    background-image: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.03) 0%,
+        rgba(255,255,255,0.10) 40%,
+        rgba(255,255,255,0.03) 80%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 1.8s infinite linear;
+    border-radius: var(--radius-sm);
+}
+[data-theme="light"] .skeleton {
+    background: #f0f0f0;
+    background-image: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.5) 25%,
+        rgba(255,255,255,0.9) 50%,
+        rgba(255,255,255,0.5) 75%
+    );
+}
+
+/* ===== FLOAT (hero floating cards) ===== */
+@keyframes floatUp {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+}
+.animate-float { animation: floatUp 4s ease-in-out infinite; }
+
+/* ===== NUMBER COUNT UP (applied via JS) ===== */
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-count { animation: countUp 0.4s ease forwards; }
+
+/* ===== BORDER GLOW on hover ===== */
+.glow-hover {
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.glow-hover:hover {
+    box-shadow: 0 0 0 2px rgba(99,102,241,0.4), 0 12px 40px rgba(0,0,0,0.25);
+    border-color: rgba(99,102,241,0.4) !important;
+}
+
+/* ===== PROGRESS BAR FILL ===== */
+@keyframes progressFill {
+    from { width: 0%; }
+}
+.animate-progress { animation: progressFill 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+/* ===== TOAST NOTIFICATION ===== */
+@keyframes toastIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toastOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(10px); }
+}
+.toast-enter { animation: toastIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
+.toast-exit  { animation: toastOut 0.3s ease forwards; }
+
+/* ===== GRADIENT TEXT SHIMMER ===== */
+@keyframes textShimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+}
+.text-shimmer {
+    background: linear-gradient(90deg, #6366F1 0%, #A855F7 30%, #10B981 60%, #6366F1 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: textShimmer 4s linear infinite;
+}
