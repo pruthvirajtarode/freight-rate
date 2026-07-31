@@ -9,47 +9,76 @@ responsive.css — Media queries for responsive design
 }
 
 @media (max-width: 768px) {
+    /* ===== NAVBAR ===== */
     .navbar .container {
         position: relative;
         padding: 0 1rem;
+        height: 100%;
     }
 
     .nav-toggle {
         display: inline-flex;
     }
 
+    /* Mobile dropdown — fully opaque so it doesn't bleed through */
     .nav-links {
-        position: absolute;
-        top: calc(100% + 0.75rem);
-        right: 1rem;
-        left: 1rem;
+        position: fixed;               /* fixed so it sits above everything */
+        top: var(--navbar-height);
+        left: 0;
+        right: 0;
         display: none;
         flex-direction: column;
         align-items: flex-start;
-        gap: 0.75rem;
-        padding: 1rem;
-        background: var(--glass-bg);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius-md);
-        box-shadow: var(--glass-shadow);
+        gap: 0;
+        padding: 0.5rem 0;
+        background: #0d1117;           /* solid dark so page doesn't show through */
+        border-bottom: 1px solid var(--glass-border);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+        z-index: 999;                  /* below navbar (1000) but above page */
+    }
+
+    [data-theme="light"] .nav-links {
+        background: #F8FAFC;
+        border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .nav-links li {
+        width: 100%;
+    }
+
+    .nav-links .nav-link {
+        display: block;
+        width: 100%;
+        padding: 0.85rem 1.5rem;
+        border-bottom: 1px solid var(--glass-border);
+        font-size: 1rem;
+    }
+
+    .nav-links li:last-child .nav-link {
+        border-bottom: none;
     }
 
     .nav-links.open {
         display: flex;
     }
 
+    /* ===== LAYOUT ===== */
     .dashboard-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
     }
 
+    .dashboard-title h1 {
+        font-size: 1.6rem;
+    }
+
     .kpi-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
     }
 
     .glass-panel {
-        padding: 1.5rem;
+        padding: 1.25rem;
     }
 
     .container {
@@ -57,9 +86,10 @@ responsive.css — Media queries for responsive design
     }
 
     main {
-        padding: 1.25rem 0 2rem;
+        padding: 1.5rem 0 2rem;
     }
 
+    /* ===== HERO ===== */
     .hero-actions,
     .dashboard-header > div {
         width: 100%;
@@ -69,5 +99,88 @@ responsive.css — Media queries for responsive design
     .hero-actions .btn {
         width: 100%;
         justify-content: center;
+    }
+
+    /* ===== DASHBOARD ===== */
+    .kpi-grid-enhanced {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .charts-2col {
+        grid-template-columns: 1fr !important;
+    }
+
+    .chart-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    /* ===== DECEMBER / ANALYTICS ===== */
+    .two-col,
+    .insight-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .dec-stats {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    /* ===== MODEL PAGE ===== */
+    .shap-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .kpi-row {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    /* ===== PREDICTION FORM ===== */
+    .prediction-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ===== TABLE OVERFLOW ===== */
+    .dec-table-wrap,
+    .data-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ===== ROUTE HERO ===== */
+    .route-hero {
+        flex-direction: column;
+    }
+
+    .route-path {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .kpi-grid-enhanced {
+        grid-template-columns: 1fr !important;
+    }
+
+    .dec-stats {
+        grid-template-columns: 1fr !important;
+    }
+
+    .hero-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .hero-stat-divider {
+        display: none;
+    }
+
+    .metrics-row {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .steps-row {
+        grid-template-columns: 1fr !important;
     }
 }

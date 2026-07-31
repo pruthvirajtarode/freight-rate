@@ -334,13 +334,15 @@
     let lineChart, dowChart, weeklyChart;
 
     async function loadDecember() {
-        try {
-            const downloadUrl = `${API_BASE}/download/december`;
-            const topBtn = document.getElementById('download-dec-btn-top');
-            const tableBtn = document.getElementById('download-dec-btn-table');
-            if (topBtn) topBtn.href = downloadUrl;
-            if (tableBtn) tableBtn.href = downloadUrl;
+        const downloadUrl = `${API_BASE}/download/december`;
+        const topBtn = document.getElementById('download-dec-btn-top');
+        const tableBtn = document.getElementById('download-dec-btn-table');
 
+        // Set download links immediately — don't wait for fetch
+        if (topBtn) { topBtn.href = downloadUrl; topBtn.target = '_blank'; }
+        if (tableBtn) { tableBtn.href = downloadUrl; tableBtn.target = '_blank'; }
+
+        try {
             const resp = await fetch(downloadUrl);
             if (!resp.ok) throw new Error('No data');
             const text = await resp.text();
@@ -357,10 +359,26 @@
                 };
             }).filter(d => d.date && d.rate > 0);
 
-            renderDecemberData(data);
+            renderDecemberData(data, text);
         } catch(e) {
             console.warn('Could not load December CSV from API, using simulated data.', e);
-            renderDecemberData(generateSimData());
+            const simData = generateSimData();
+            renderDecemberData(simData, null);
+            // Make export button generate CSV client-side from sim data
+            [topBtn, tableBtn].forEach(btn => {
+                if (!btn) return;
+                btn.removeAttribute('href');
+                btn.style.cursor = 'pointer';
+                btn.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    const csvLines = ['date,predicted_rate', ...simData.map(d => `${d.date},${d.rate.toFixed(2)}`)];
+                    const blob = new Blob([csvLines.join('\n')], { type: 'text/csv' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; a.download = 'december_chart_predictions.csv';
+                    a.click(); URL.revokeObjectURL(url);
+                });
+            });
         }
     }
 
@@ -383,7 +401,7 @@
         return data;
     }
 
-    function renderDecemberData(data) {
+    function renderDecemberData(data, rawCsv) {
         const rates = data.map(d => d.rate);
         const avg = (rates.reduce((a,b) => a+b, 0) / rates.length).toFixed(2);
         const max = Math.max(...rates).toFixed(2);

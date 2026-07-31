@@ -9,7 +9,6 @@ KPI cards, layout grids, chart containers, tables, badges, toasts.
     justify-content: space-between;
     align-items: flex-end;
     margin-bottom: 2rem;
-    padding-top: 1rem;
     flex-wrap: wrap;
     gap: 1rem;
 }

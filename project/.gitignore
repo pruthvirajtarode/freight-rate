@@ -8,7 +8,6 @@ __pycache__/
 data/*.csv
 !data/.keep
 backend/reports/*.pdf
-backend/*.csv
 
 # Node (if used for frontend serving)
 node_modules/

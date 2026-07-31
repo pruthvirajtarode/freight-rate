@@ -34,7 +34,7 @@ Implements the Premium Enterprise SaaS UI with Glassmorphism.
     --font-body: 'Inter', sans-serif;
     
     /* Layout */
-    --navbar-height: 80px;
+    --navbar-height: 88px;
     --radius-sm: 8px;
     --radius-md: 16px;
     --radius-lg: 24px;
@@ -115,7 +115,7 @@ ul {
 main {
     flex: 1;
     margin-top: var(--navbar-height);
-    padding: 2rem 0;
+    padding: 2.5rem 0 3rem;
 }
 
 /* Glass Components */
@@ -241,8 +241,8 @@ main {
     top: 0;
     left: 0;
     width: 100%;
-    min-height: var(--navbar-height);
-    background: rgba(11, 14, 20, 0.7);
+    height: var(--navbar-height);
+    background: rgba(11, 14, 20, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--glass-border);
