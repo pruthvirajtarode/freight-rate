@@ -65,6 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Display result
             resultValue.innerText = `$${result.predicted_rate.toFixed(2)}`;
             resultBox.style.display = 'block';
+
+            // Hide previous API error (if any)
+            const errEl = document.getElementById('api-error');
+            if (errEl) errEl.style.display = 'none';
             
             // Animation
             if (typeof gsap !== 'undefined') {
@@ -72,7 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            const errEl = document.getElementById('api-error');
+            if (errEl) {
+                errEl.textContent = `Error: ${error.message}`;
+                errEl.className = 'status-text error';
+                errEl.style.display = 'block';
+            } else {
+                console.error('Prediction error:', error);
+            }
         } finally {
             // Restore button
             btn.innerHTML = originalText;

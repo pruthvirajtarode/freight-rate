@@ -460,6 +460,7 @@
                     <i class="fas fa-calculator text-gradient"></i> Single Load
                     <span class="model-chip" style="margin-left:auto;"><span class="dot"></span> AI Model Active</span>
                 </h2>
+                <div id="api-error" class="status-text error" style="display:none; margin-bottom:0.75rem;"></div>
                 <form id="single-predict-form">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
@@ -1225,7 +1226,14 @@
                 }
 
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                const errEl = document.getElementById('api-error');
+                if (errEl) {
+                    errEl.textContent = `Error: ${error.message}`;
+                    errEl.className = 'status-text error';
+                    errEl.style.display = 'block';
+                } else {
+                    console.error('Prediction error:', error);
+                }
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
