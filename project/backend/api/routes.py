@@ -30,6 +30,32 @@ from utils import get_logger
 logger = get_logger(__name__)
 router = APIRouter()
 
+# Module-level cached artifacts to avoid reloading on every request
+_MODEL = None
+_PREPROCESSOR = None
+_ENGINEER = None
+_FEATURE_NAMES = None
+
+
+def _ensure_artifacts_loaded():
+    """Load model artifacts into module-level variables if available."""
+    global _MODEL, _PREPROCESSOR, _ENGINEER, _FEATURE_NAMES
+    if _MODEL is not None:
+        return
+    try:
+        if BEST_MODEL_PATH.exists():
+            _MODEL = joblib.load(BEST_MODEL_PATH)
+        if PREPROCESSOR_PATH.exists():
+            _PREPROCESSOR = joblib.load(PREPROCESSOR_PATH)
+        if FEATURE_ENGINEER_PATH.exists():
+            _ENGINEER = joblib.load(FEATURE_ENGINEER_PATH)
+        if FEATURE_LIST_PATH.exists():
+            with open(FEATURE_LIST_PATH, "r") as f:
+                _FEATURE_NAMES = json.load(f)
+        logger.info("Model artifacts loaded into memory.")
+    except Exception as e:
+        logger.warning(f"Failed to load some artifacts at startup: {e}")
+
 # ---------------------------------------------------------------------------
 # Pydantic Models for Validation
 # ---------------------------------------------------------------------------
@@ -58,7 +84,12 @@ class SinglePredictionRequest(BaseModel):
 @router.get("/health")
 def health_check():
     """Check API status and model availability."""
-    model_ready = BEST_MODEL_PATH.exists()
+    # Try to use cached model state when possible
+    try:
+        _ensure_artifacts_loaded()
+    except Exception:
+        pass
+    model_ready = _MODEL is not None or BEST_MODEL_PATH.exists()
     return {"status": "online", "model_loaded": model_ready}
 
 
@@ -87,15 +118,15 @@ def get_model_comparison():
 @router.post("/predict/single")
 def predict_single(req: SinglePredictionRequest):
     """Predict freight rate for a single load."""
-    if not BEST_MODEL_PATH.exists():
+    # Ensure artifacts are loaded (cached) to reduce overhead
+    if _MODEL is None and not BEST_MODEL_PATH.exists():
         raise HTTPException(status_code=503, detail="Model not trained yet.")
-
     try:
-        model = joblib.load(BEST_MODEL_PATH)
-        preprocessor = joblib.load(PREPROCESSOR_PATH)
-        engineer = joblib.load(FEATURE_ENGINEER_PATH)
-        with open(FEATURE_LIST_PATH, "r") as f:
-            feature_names = json.load(f)
+        _ensure_artifacts_loaded()
+        model = _MODEL
+        preprocessor = _PREPROCESSOR
+        engineer = _ENGINEER
+        feature_names = _FEATURE_NAMES
 
         # Convert request to DataFrame
         df = pd.DataFrame([req.dict()])
@@ -135,11 +166,11 @@ async def predict_batch(file: UploadFile = File(...)):
         contents = await file.read()
         df = pd.read_csv(StringIO(contents.decode("utf-8")))
 
-        model = joblib.load(BEST_MODEL_PATH)
-        preprocessor = joblib.load(PREPROCESSOR_PATH)
-        engineer = joblib.load(FEATURE_ENGINEER_PATH)
-        with open(FEATURE_LIST_PATH, "r") as f:
-            feature_names = json.load(f)
+        _ensure_artifacts_loaded()
+        model = _MODEL
+        preprocessor = _PREPROCESSOR
+        engineer = _ENGINEER
+        feature_names = _FEATURE_NAMES
 
         # Preprocess & Feature Engineer
         df_clean, _, _ = preprocess_data(
