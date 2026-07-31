@@ -7,7 +7,6 @@ __pycache__/
 # Data and Models
 data/*.csv
 !data/.keep
-backend/charts/*.png
 backend/reports/*.pdf
 backend/*.csv
 

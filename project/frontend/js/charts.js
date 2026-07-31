@@ -11,9 +11,12 @@ function loadStaticChart(chartName, imgElementId) {
     const imgEl = document.getElementById(imgElementId);
     if (!imgEl) return;
     
+    // Determine backend base URL from API_BASE defined in main.js
+    const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE.replace(/\/api\/v1\/?$/, '') : '';
+    
     // Add cache-busting query param so it reloads if newly generated
     const ts = new Date().getTime();
-    imgEl.src = `/static/charts/${chartName}?t=${ts}`;
+    imgEl.src = `${baseUrl}/static/charts/${chartName}?t=${ts}`;
     
     // Handle error gracefully
     imgEl.onerror = () => {

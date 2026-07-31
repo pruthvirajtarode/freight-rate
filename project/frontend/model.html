@@ -321,11 +321,15 @@
     <script src="js/main.js"></script>
     <script>
         function tryLoadShap() {
-            const img = document.getElementById('chart-shap');
+            const img = document.getElementById('shap-img');
             const ph = document.getElementById('shap-placeholder');
-            img.src = `/static/charts/shap_summary.png`;
-            img.onload = () => { img.style.display = 'block'; if(ph) ph.style.display = 'none'; };
-            img.onerror = () => { img.style.display = 'none'; if(ph) ph.style.display = 'block'; };
+            const baseUrl = typeof API_BASE !== 'undefined' ? API_BASE.replace(/\/api\/v1\/?$/, '') : '';
+            
+            if (img) {
+                img.src = `${baseUrl}/static/charts/shap_summary.png`;
+                img.onload = () => { img.style.display='block'; if(ph)ph.style.display='none'; };
+                img.onerror = () => { img.style.display='none'; if(ph)ph.style.display='flex'; };
+            }
         }
 
         // Waterfall Simulation Logic
