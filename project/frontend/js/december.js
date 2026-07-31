@@ -4,6 +4,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const apiBase = typeof API_BASE === 'string' ? API_BASE : '/api/v1';
     const ctx = document.getElementById('decemberChart');
     if (!ctx) return;
     
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         const dlBtn = document.getElementById('download-dec-btn');
         if (dlBtn) {
-            dlBtn.href = '/api/v1/download/december';
+            dlBtn.href = `${apiBase}/download/december`;
         }
         
     } catch (error) {

@@ -70,11 +70,27 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Helper for API calls
-const API_BASE = "/api/v1";
+const API_BASE = (() => {
+    const host = (window.location.hostname || '').toLowerCase();
+    const override = window.FREIGHT_API_BASE;
+    if (typeof override === 'string' && override.trim()) {
+        return override.replace(/\/$/, '');
+    }
+    // Frontend is hosted on Vercel while backend runs on Render.
+    if (host.includes('vercel.app')) {
+        return 'https://freight-rate.onrender.com/api/v1';
+    }
+    return '/api/v1';
+})();
+
+function buildApiUrl(endpoint) {
+    const normalized = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${API_BASE}${normalized}`;
+}
 
 async function fetchAPI(endpoint, options = {}) {
     try {
-        const response = await fetch(`${API_BASE}${endpoint}`, options);
+        const response = await fetch(buildApiUrl(endpoint), options);
         if (!response.ok) {
             throw new Error(`API Error: ${response.statusText}`);
         }

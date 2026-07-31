@@ -4,6 +4,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+    const apiBase = typeof API_BASE === 'string' ? API_BASE : '/api/v1';
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('csv-upload');
     const uploadBtn = document.getElementById('upload-btn');
@@ -70,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('file', currentFile);
 
         try {
-            const response = await fetch('/api/v1/predict/batch', {
+            const response = await fetch(`${apiBase}/predict/batch`, {
                 method: 'POST',
                 body: formData
             });

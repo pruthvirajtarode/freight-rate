@@ -3,6 +3,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+    const apiBase = typeof API_BASE === 'string' ? API_BASE : '/api/v1';
     const form = document.getElementById('single-predict-form');
     const resultBox = document.getElementById('prediction-result-box');
     const resultValue = document.getElementById('prediction-result-value');
@@ -36,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.disabled = true;
         
         try {
-            const response = await fetch('/api/v1/predict/single', {
+            const response = await fetch(`${apiBase}/predict/single`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

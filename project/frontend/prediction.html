@@ -1185,7 +1185,7 @@
             btn.disabled = true;
 
             try {
-                const response = await fetch('/api/v1/predict/single', {
+                const response = await fetch(`${API_BASE}/predict/single`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
