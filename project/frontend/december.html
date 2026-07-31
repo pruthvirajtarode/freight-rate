@@ -415,10 +415,10 @@
 
         // Line Chart
         const labels = data.map(d => {
-            const dt = new Date(d.date);
+            const dt = new Date(d.date + 'T12:00:00');
             return `Dec ${dt.getDate()}`;
         });
-        const dateObjs = data.map(d => new Date(d.date));
+        const dateObjs = data.map(d => new Date(d.date + 'T12:00:00'));
         const isWeekends = dateObjs.map(d => d.getDay() === 0 || d.getDay() === 6);
 
         const lineCtx = document.getElementById('dec-line-chart').getContext('2d');
@@ -482,7 +482,7 @@
         const dowRates = {};
         DAYS_SHORT.forEach(d => dowRates[d] = []);
         data.forEach(d => {
-            const dow = new Date(d.date).getDay();
+            const dow = new Date(d.date + 'T12:00:00').getDay();
             dowRates[DAYS_SHORT[dow]].push(d.rate);
         });
         const dowAvgs = DAYS_SHORT.map(d => {
@@ -553,7 +553,7 @@
         const tbody = document.getElementById('dec-table-body');
         tbody.innerHTML = '';
         data.forEach(d => {
-            const dt = new Date(d.date);
+            const dt = new Date(d.date + 'T12:00:00');
             const dow = dt.getDay();
             const dayName = DAYS[dow];
             const isWeekend = dow === 0 || dow === 6;

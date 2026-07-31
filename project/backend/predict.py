@@ -90,7 +90,7 @@ def predict_file(
     else:
         out_df = df.copy()
         if "date" in out_df.columns:
-            out_df["date"] = pd.to_datetime(out_df["date"]).dt.strftime('%d-%b-%Y')
+            out_df["date"] = pd.to_datetime(out_df["date"]).dt.strftime('%Y-%m-%d')
         out_df["predicted_rate"] = predictions.round(2)
 
     # Save
