@@ -45,22 +45,37 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             if (!response.ok) {
-                const err = await response.json();
-                let errorMsg = err.detail || 'Prediction failed';
+                const contentType = response.headers.get('content-type') || '';
+                let errorMsg = 'Prediction failed';
+                if (contentType.includes('application/json')) {
+                    const err = await response.json();
+                    errorMsg = err.detail || errorMsg;
+                    if (Array.isArray(errorMsg)) {
+                        errorMsg = errorMsg.map(item => {
+                            const loc = Array.isArray(item.loc) ? item.loc.join('.') : String(item.loc ?? '');
+                            const msg = item.msg ?? item.message ?? JSON.stringify(item);
+                            return loc ? `${loc}: ${msg}` : msg;
+                        }).join('\n');
+                    } else if (typeof errorMsg !== 'string') {
+                        errorMsg = JSON.stringify(errorMsg);
+                    }
+                } else {
+                    const text = await response.text();
+                    errorMsg = `API returned non-JSON (${response.status}): ${text.slice(0,200)}`;
+                }
                 if (Array.isArray(errorMsg)) {
                     // Pydantic v2 validation errors: [{loc: [...], msg: "...", type: "..."}, ...]
-                    errorMsg = errorMsg.map(item => {
-                        const loc = Array.isArray(item.loc) ? item.loc.join('.') : String(item.loc ?? '');
-                        const msg = item.msg ?? item.message ?? JSON.stringify(item);
-                        return loc ? `${loc}: ${msg}` : msg;
-                    }).join('\n');
-                } else if (typeof errorMsg !== 'string') {
-                    errorMsg = JSON.stringify(errorMsg);
-                }
                 throw new Error(errorMsg);
             }
             
-            const result = await response.json();
+            const contentType2 = response.headers.get('content-type') || '';
+            let result;
+            if (contentType2.includes('application/json')) {
+                result = await response.json();
+            } else {
+                const text = await response.text();
+                throw new Error(`API returned non-JSON (${response.status}): ${text.slice(0,200)}`);
+            }
             
             // Display result
             resultValue.innerText = `$${result.predicted_rate.toFixed(2)}`;
