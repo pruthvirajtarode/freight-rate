@@ -20,17 +20,7 @@ High-quality, production-oriented freight rate prediction platform. This reposit
 
 ## Architecture (high level)
 
-```mermaid
-flowchart LR
-	A[Raw Data] --> B[Preprocessing]
-	B --> C[Feature Engineering]
-	C --> D[Model Training & Selection]
-	D --> E[Evaluation & Visualizations]
-	E --> F[Saved Artifacts]
-	F --> G[FastAPI Backend]
-	G --> H[Frontend Dashboard]
-	H --> I[User / Reviewer]
-```
+![Architecture Diagram](deliverables/architecture.png)
 
 ## Folder structure (important)
 
@@ -100,9 +90,3 @@ python -m http.server 3000
 - Remove large raw datasets from the repo if you plan to publish publicly (they are kept in `archive/`).
 - Record a short 2–3 minute walkthrough (Loom) showing the folder structure, how to run the project, and the results.
 - Export the report `project/backend/reports/FreightAI_Assessment_Report.docx` to PDF if needed and include it in `deliverables/`.
-
----
-
-If you want, I can also add a rendered PNG of the architecture diagram to `deliverables/` and update the GitHub repository `README` preview with that image. Would you like me to do that and push the change now?
-
-
