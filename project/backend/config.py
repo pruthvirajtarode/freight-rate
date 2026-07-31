@@ -11,12 +11,23 @@ from typing import Any
 # ---------------------------------------------------------------------------
 # Base paths
 # ---------------------------------------------------------------------------
-BASE_DIR: Path = Path(__file__).resolve().parent.parent  # project/
+_THIS_DIR: Path = Path(__file__).resolve().parent
+# Support both layouts:
+# 1) Monorepo image: /app/backend/config.py -> BASE_DIR=/app
+# 2) Backend-only image: /app/config.py -> BASE_DIR=/app
+BASE_DIR: Path = _THIS_DIR.parent if _THIS_DIR.name == "backend" else _THIS_DIR
 DATA_DIR: Path = BASE_DIR / "data"
 BACKEND_DIR: Path = BASE_DIR / "backend"
 MODELS_DIR: Path = BACKEND_DIR / "models"
 CHARTS_DIR: Path = BACKEND_DIR / "charts"
 REPORTS_DIR: Path = BACKEND_DIR / "reports"
+
+if not MODELS_DIR.exists():
+    # Backend-only image stores artifacts directly under /app/models.
+    BACKEND_DIR = BASE_DIR
+    MODELS_DIR = BASE_DIR / "models"
+    CHARTS_DIR = BASE_DIR / "charts"
+    REPORTS_DIR = BASE_DIR / "reports"
 
 # ---------------------------------------------------------------------------
 # Data files
