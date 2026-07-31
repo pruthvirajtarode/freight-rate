@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "project/frontend/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/project/frontend/$1" }
+  ]
+}
