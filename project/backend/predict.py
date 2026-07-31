@@ -86,10 +86,12 @@ def predict_file(
 
     # 4. Format Output
     if ids is not None:
-        out_df = pd.DataFrame({id_col: ids, "predicted_rate": predictions})
+        out_df = pd.DataFrame({id_col: ids, "predicted_rate": predictions.round(2)})
     else:
         out_df = df.copy()
-        out_df["predicted_rate"] = predictions
+        if "date" in out_df.columns:
+            out_df["date"] = pd.to_datetime(out_df["date"]).dt.strftime('%d-%b-%Y')
+        out_df["predicted_rate"] = predictions.round(2)
 
     # Save
     out_df.to_csv(output_path, index=False)

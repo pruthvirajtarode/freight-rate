@@ -415,8 +415,8 @@
 
         // Line Chart
         const labels = data.map(d => {
-            const parts = d.date.split('-');
-            return `Dec ${parseInt(parts[2])}`;
+            const dt = new Date(d.date);
+            return `Dec ${dt.getDate()}`;
         });
         const dateObjs = data.map(d => new Date(d.date));
         const isWeekends = dateObjs.map(d => d.getDay() === 0 || d.getDay() === 6);
