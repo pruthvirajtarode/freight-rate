@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreightAI — Machine Learning Assessment Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-gradient: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            --secondary: #0EA5E9;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --dark-bg: #0F172A;
+            --card-bg: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-color: #334155;
+            --accent-glow: rgba(99, 102, 241, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .report-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #182234;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        /* HEADER SECTION */
+        .report-header {
+            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%);
+            padding: 3rem 2.5rem;
+            color: #FFFFFF;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .badge-tag {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #E0E7FF;
+        }
+
+        .report-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 0.8rem;
+            background: linear-gradient(to right, #FFFFFF, #C7D2FE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .report-subtitle {
+            font-size: 1.1rem;
+            color: #A5B4FC;
+            margin-bottom: 2rem;
+        }
+
+        /* LINKS ROW */
+        .submission-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 1.25rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .link-card {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            text-decoration: none;
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .link-card:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateY(-2px);
+        }
+
+        .link-card i {
+            font-size: 1.2rem;
+            color: #818CF8;
+        }
+
+        /* CONTENT BODY */
+        .report-body {
+            padding: 2.5rem;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #F1F5F9;
+            margin-top: 2rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .section-title i {
+            color: #6366F1;
+        }
+
+        /* KPI GRID */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin: 1.5rem 0;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .kpi-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #6366F1;
+            margin-bottom: 0.2rem;
+        }
+
+        .kpi-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        /* TABLES */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 1.25rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            font-size: 0.92rem;
+        }
+
+        th {
+            background: #0F172A;
+            color: #CBD5E1;
+            text-align: left;
+            padding: 0.9rem 1rem;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: #E2E8F0;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .winner-row {
+            background: rgba(16, 185, 129, 0.1) !important;
+            font-weight: 600;
+        }
+
+        .winner-row td {
+            color: #34D399;
+        }
+
+        /* ALERT / HIGHLIGHT BOX */
+        .callout {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 4px solid #6366F1;
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 10px 10px 0;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            color: #E0E7FF;
+        }
+
+        .callout h4 {
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            color: #818CF8;
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            body {
+                background: #FFFFFF;
+                color: #000000;
+                padding: 0;
+            }
+            .report-container {
+                box-shadow: none;
+                border: none;
+                background: #FFFFFF;
+            }
+            .report-header {
+                background: #1E1B4B !important;
+                -webkit-print-color-adjust: exact;
+                color: #FFFFFF !important;
+            }
+            .report-body {
+                padding: 1.5rem;
+            }
+            .section-title {
+                color: #1E293B;
+                border-bottom-color: #CBD5E1;
+            }
+            .kpi-card, table {
+                background: #F8FAFC !important;
+                border-color: #E2E8F0 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            th {
+                background: #E2E8F0 !important;
+                color: #0F172A !important;
+            }
+            td {
+                color: #334155 !important;
+            }
+            .callout {
+                background: #F0FDF4 !important;
+                color: #166534 !important;
+                border-left-color: #22C55E !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-container">
+
+    <!-- HEADER -->
+    <header class="report-header">
+        <div class="header-top">
+            <span class="badge-tag"><i class="fas fa-microchip"></i> Machine Learning Engineer Assessment</span>
+            <span style="font-size: 0.9rem; color: #CBD5E1;">Date: August 2026</span>
+        </div>
+        <h1 class="report-title">Freight Rate Prediction &amp; Forecasting Project</h1>
+        <p class="report-subtitle">End-to-End Supervised Learning Model, Explainable AI (SHAP), Daily December Forecast, and Production REST API Architecture.</p>
+
+        <!-- SUBMISSION LINKS -->
+        <div class="submission-links">
+            <a href="https://github.com/pruthvirajtarode/freight-rate" target="_blank" class="link-card">
+                <i class="fab fa-github"></i>
+                <div>
+                    <div>GitHub Repository</div>
+                    <div style="font-size: 0.75rem; color: #A5B4FC; font-weight: normal;">github.com/pruthvirajtarode/freight-rate</div>
+                </div>
+            </a>
+            <a href="https://freight-rate-one.vercel.app" target="_blank" class="link-card">
+                <i class="fas fa-globe"></i>
+                <div>
+                    <div>Live Web Dashboard</div>
+                    <div style="font-size: 0.75rem; color: #A5B4FC; font-weight: normal;">freight-rate-one.vercel.app</div>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <!-- REPORT BODY -->
+    <div class="report-body">
+
+        <!-- EXECUTIVE SUMMARY / KPIs -->
+        <h2 class="section-title"><i class="fas fa-chart-pie"></i> Executive Performance Metrics</h2>
+        
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-value">GradientBoosting</div>
+                <div class="kpi-label">Winning Model</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">0.8507</div>
+                <div class="kpi-label">Holdout R² Score</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">6.76%</div>
+                <div class="kpi-label">Holdout MAPE</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">$128.98</div>
+                <div class="kpi-label">Holdout MAE</div>
+            </div>
+        </div>
+
+        <!-- 1. DATASET & PREPROCESSING -->
+        <h2 class="section-title"><i class="fas fa-database"></i> 1. Dataset &amp; Data Pipeline Architecture</h2>
+        <p>The system ingests 48,000 historical shipment records to predict <code>posted_rate</code> (continuous USD freight rate). Preprocessing is designed to avoid data leakage while ensuring robust feature handling.</p>
+        
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Split / Dataset</th>
+                        <th>Record Count</th>
+                        <th>Strategy &amp; Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Training Set</strong></td>
+                        <td>40,800 rows (85%)</td>
+                        <td>IQR outlier filtering (0.15% dropped), model training, 5-fold CV</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Internal Holdout</strong></td>
+                        <td>7,200 rows (15%)</td>
+                        <td>Unseen validation evaluate overall generalization (MAE: $128.98)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Validation Assessment</strong></td>
+                        <td>12,000 rows</td>
+                        <td>Unlabeled holdout file (<code>validation_predictions.csv</code> generated)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>December Forecast</strong></td>
+                        <td>31 rows</td>
+                        <td>Daily December 2025 input features for seasonal curve generation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 2. MODEL COMPARISON -->
+        <h2 class="section-title"><i class="fas fa-trophy"></i> 2. 5-Fold Cross-Validation Benchmarks</h2>
+        <p>Evaluated 7 distinct regression algorithms using 5-fold cross-validation on the training set. <strong>GradientBoosting</strong> outperformed all competitors on RMSE and R².</p>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>5-Fold CV RMSE ($)</th>
+                        <th>CV R² Score</th>
+                        <th>Fit Time (sec)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="winner-row">
+                        <td><strong>Gradient Boosting</strong></td>
+                        <td><strong>375.01</strong></td>
+                        <td><strong>0.9272</strong></td>
+                        <td>9.65s</td>
+                        <td>🏆 Selected Winner</td>
+                    </tr>
+                    <tr>
+                        <td>LightGBM</td>
+                        <td>376.39</td>
+                        <td>0.9266</td>
+                        <td>0.22s</td>
+                        <td>Runner-up</td>
+                    </tr>
+                    <tr>
+                        <td>CatBoost</td>
+                        <td>385.36</td>
+                        <td>0.9230</td>
+                        <td>0.50s</td>
+                        <td>Evaluated</td>
+                    </tr>
+                    <tr>
+                        <td>Linear Regression</td>
+                        <td>387.53</td>
+                        <td>0.9222</td>
+                        <td>0.03s</td>
+                        <td>Baseline</td>
+                    </tr>
+                    <tr>
+                        <td>Random Forest</td>
+                        <td>390.11</td>
+                        <td>0.9212</td>
+                        <td>5.70s</td>
+                        <td>Evaluated</td>
+                    </tr>
+                    <tr>
+                        <td>Extra Trees</td>
+                        <td>392.76</td>
+                        <td>0.9201</td>
+                        <td>3.04s</td>
+                        <td>Evaluated</td>
+                    </tr>
+                    <tr>
+                        <td>XGBoost</td>
+                        <td>401.32</td>
+                        <td>0.9166</td>
+                        <td>0.50s</td>
+                        <td>Evaluated</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 3. SHAP EXPLAINABLE AI -->
+        <h2 class="section-title"><i class="fas fa-brain"></i> 3. Model Interpretability &amp; SHAP Feature Drivers</h2>
+        <p>To ensure transparency, global SHAP (Shapley Additive exPlanations) values were calculated. The primary decision drivers for freight rates include:</p>
+        
+        <div class="callout">
+            <h4><i class="fas fa-lightbulb"></i> Top Feature Contributions:</h4>
+            <ol style="margin-left: 1.2rem;">
+                <td><strong>Distance (miles):</strong> Strongest positive driver. Rates scale non-linearly over long haul lanes.</td><br>
+                <td><strong>Cargo Weight (lbs):</strong> Higher equipment weight increases rate per mile.</td><br>
+                <td><strong>Rate per Mile (Engineered):</strong> Interaction term providing clear baseline expectations.</td><br>
+                <td><strong>Market Capacity Index:</strong> Captures spot market tight/loose capacity supply dynamics.</td>
+            </ol>
+        </div>
+
+        <!-- 4. DECEMBER FORECAST & DELIVERABLES -->
+        <h2 class="section-title"><i class="fas fa-calendar-alt"></i> 4. December 2025 Daily Forecast Insights</h2>
+        <p>The model was applied to the 31 daily input records for December 2025. Key seasonal dynamics captured:</p>
+        <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem; color: #CBD5E1;">
+            <li><strong>Pre-Holiday Surge (Dec 18–22):</strong> Peak rate spike driven by holiday shipping volume constraints.</li>
+            <li><strong>Christmas Dip (Dec 24–25):</strong> Temporary rate decline due to market operational pauses.</li>
+            <li><strong>Year-End Adjustment (Dec 29–31):</strong> Stabilization as annual contracts reset.</li>
+        </ul>
+
+        <!-- 5. SYSTEM ARCHITECTURE & API -->
+        <h2 class="section-title"><i class="fas fa-server"></i> 5. API Architecture &amp; Mobile Responsive Web App</h2>
+        <p>The solution includes a full single-port FastAPI backend serving both endpoints and the interactive glassmorphism Web SPA dashboard:</p>
+        
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Endpoint Path</th>
+                        <th>HTTP Method</th>
+                        <th>Functionality</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/api/v1/predict/single</code></td>
+                        <td>POST</td>
+                        <td>Real-time single shipment prediction with feature breakdown</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/v1/predict/batch</code></td>
+                        <td>POST</td>
+                        <td>Bulk CSV processing &amp; downloadable predictions</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/v1/metrics</code></td>
+                        <td>GET</td>
+                        <td>Returns model MAE, RMSE, R², MAPE, and hyperparameter config</td>
+                    </tr>
+                    <tr>
+                        <td><code>/static/charts/shap_summary.png</code></td>
+                        <td>GET</td>
+                        <td>Static file serving for explainability plots</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout" style="background: rgba(16, 185, 129, 0.1); border-left-color: #10B981;">
+            <h4 style="color: #34D399;"><i class="fas fa-mobile-alt"></i> Verification &amp; Mobile Responsiveness</h4>
+            <p>All 5 automated tests passed (<code>pytest project/backend/tests/</code>). The frontend uses flexbox, grid layouts, and custom media queries for full mobile responsiveness across all devices.</p>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
