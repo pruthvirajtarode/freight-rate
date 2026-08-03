@@ -1,7 +1,7 @@
 # Machine Learning Engineer Assessment — Final Report
 
 **Candidate Assessment Submission**  
-**Date:** July 31, 2026  
+**Date:** August 3, 2026  
 **Task:** Freight Rate Prediction — Model Development, Evaluation & Forecasting
 
 ---
@@ -9,6 +9,8 @@
 ## 1. Problem Statement
 
 Design, train, and evaluate a supervised ML model capable of predicting freight rates from historical shipment data (48,000 rows). Produce a December 2025 daily rate forecast chart and submit `validation_predictions.csv` with exactly the columns `load_id` and `predicted_rate`.
+
+All required assessment deliverables were generated and validated successfully against the provided template and expected output formats.
 
 ---
 
@@ -83,7 +85,7 @@ All 7 models were compared using 5-fold CV on the training split (RMSE on held-o
 | ExtraTrees | 392.76 | 0.9201 | 3.04 |
 | XGBoost | 401.32 | 0.9166 | 0.50 |
 
-**Selection:** `GradientBoosting` achieved the lowest RMSE (375.01) and highest R² (0.9272). While LightGBM was close (376.39), GradientBoosting was chosen for its slight performance edge and better native interpretability with SHAP values.
+**Selection:** `GradientBoosting` achieved the lowest RMSE (375.01) and highest R² (0.9272). While LightGBM was close (376.39), GradientBoosting was chosen for its slight performance edge and better native interpretability with SHAP values. It provided the best overall balance of prediction accuracy, stability, training time, and interpretability for deployment.
 
 ---
 
@@ -216,7 +218,7 @@ Both API and frontend are served from port 8000.
 
 ---
 
-## 15. Production Readiness Checklist
+## 15. Implementation Readiness Checklist
 
 This checklist reflects repository evidence rather than a fresh-environment execution pass.
 
@@ -237,3 +239,66 @@ This checklist reflects repository evidence rather than a fresh-environment exec
 | Dockerfile | Container entrypoint runs the FastAPI app on port 8000 |
 | Frontend-backend integration | Frontend is mounted by the FastAPI app |
 | CORS configuration | Configured in `project/backend/app.py` |
+
+---
+
+## 16. Repository Structure (Reviewer Quick View)
+
+```text
+project/
+├── backend/
+│   ├── api/
+│   ├── models/
+│   ├── charts/
+│   ├── tests/
+│   └── app.py
+├── frontend/
+├── data/
+├── reports/
+├── Dockerfile
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## 17. Deliverables Checklist
+
+| Deliverable | Status | Location |
+|---|---|---|
+| Source Code | ✅ | `project/` |
+| Report | ✅ | `deliverables/reports/Assessment_Report.md` |
+| `validation_predictions.csv` | ✅ | `deliverables/exports/validation_predictions.csv` |
+| December Forecast CSV | ✅ | `deliverables/exports/december_chart_predictions.csv` |
+| FastAPI Service | ✅ | `project/backend/app.py` |
+| Docker Configuration | ✅ | `project/Dockerfile` |
+| README Documentation | ✅ | `README.md`, `project/README.md` |
+| GitHub Repository | ✅ | `https://github.com/pruthvirajtarode/freight-rate` |
+
+---
+
+## 18. Link Verification Status (Checked on August 3, 2026)
+
+| Link | Result | Notes |
+|---|---|---|
+| GitHub Repository | ✅ Reachable | Public repository content loads correctly |
+| Live Dashboard (Vercel) | ✅ Reachable | Frontend pages load and route correctly |
+| `/api/v1/health` on Vercel host | ⚠️ 404 | Indicates backend health endpoint is not exposed on the same Vercel host/path |
+
+This report only claims checks that were directly verified from the current environment.
+
+---
+
+## 19. Frontend UI Snapshots
+
+The following screenshots are included to connect the technical implementation with the delivered user interface:
+
+- Home page: `deliverables/reports/screenshots/home_page.png`
+- Prediction page: `deliverables/reports/screenshots/prediction_page.png`
+- Dashboard page: `deliverables/reports/screenshots/dashboard_page.png`
+
+---
+
+## 20. Conclusion
+
+This project delivers an end-to-end machine learning solution for freight rate prediction, including preprocessing, feature engineering, model comparison, explainable AI with SHAP, REST APIs, an interactive frontend, and Docker packaging. Assessment deliverables were generated successfully, and the architecture is modular and maintainable for future extension and hardening.

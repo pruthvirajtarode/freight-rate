@@ -120,7 +120,7 @@ class NumberedCanvas(canvas.Canvas):
             # === SUBTITLE ===
             self.setFont("Helvetica", 10)
             self.setFillColor(colors.HexColor("#A5B4FC"))
-            subtitle = "End-to-End Production System for Spot Rate Forecasting, Explainable AI (SHAP),"
+            subtitle = "End-to-End ML System for Spot Rate Forecasting, Explainable AI (SHAP),"
             subtitle2 = "5-Fold Algorithm Benchmarks, and REST Microservices."
             self.drawString(54, title_y - 70, subtitle)
             self.drawString(54, title_y - 84, subtitle2)
@@ -168,7 +168,7 @@ class NumberedCanvas(canvas.Canvas):
             self.setFont("Helvetica-Bold", 12)
             self.setFillColor(colors.HexColor("#FFFFFF"))
             self.drawString(70, card_y + card_h - 82, "Spotter Assessment Team")
-            self.drawString(70 + col_w, card_y + card_h - 82, "August 2026")
+            self.drawString(70 + col_w, card_y + card_h - 82, "August 3, 2026")
             
             # === GITHUB LINK (clickable) ===
             link_y = card_y - 30
