@@ -1,39 +1,30 @@
-# FreightAI — Freight Rate Prediction (Assessment)
+# FreightAI
 
-High-quality, production-oriented freight rate prediction platform. This repository contains the complete assessment deliverables including the ML training pipeline, model artifacts, prediction scripts, a FastAPI backend and a responsive frontend dashboard.
+FreightAI is a freight rate prediction assessment project with a full ML pipeline, a FastAPI backend, and a static frontend dashboard. The repository is organized so reviewers can quickly find the source code, generated deliverables, and archived raw inputs.
 
---
+## What's Included
 
-## Highlights
+- End-to-end training flow: preprocessing, feature engineering, model selection, tuning, and evaluation
+- FastAPI service for predictions, metrics, downloads, and the static frontend
+- Static frontend pages for dashboarding, analysis, and forecasting
+- Submission-ready outputs in `deliverables/`
 
-- Production-style training pipeline (preprocessing → features → model selection → HPO → evaluation)
-- FastAPI backend serving predictions and metrics
-- Responsive frontend for visualization and batch upload
-- Deliverables exported in `deliverables/` for easy submission
+## Repository Map
 
-## Quick Links
+| Path | Purpose |
+|---|---|
+| [project/](project) | Main application code, including backend, frontend, tests, models, and reports |
+| [deliverables/](deliverables) | Final PDF report, exported predictions, and key visual assets |
+| [archive/](archive) | Raw datasets and intermediate files kept for reference |
+| [tools/](tools) | Utility scripts used during development and debugging |
 
-- Project code: [project](project)
-- Deliverables (report, predictions, charts): [deliverables](deliverables)
-- Archived raw files: [archive](archive)
-- Utility scripts: [tools](tools)
-
-## Architecture (high level)
+## Visual Overview
 
 ![Architecture Diagram](deliverables/architecture.png)
 
-## Folder structure (important)
+## Quick Start
 
-- `project/` — main application code (backend + frontend)
-	- `project/backend` — FastAPI backend, training and prediction scripts
-	- `project/frontend` — static UI (HTML/CSS/JS)
-- `deliverables/` — final report, predictions, and charts ready for submission
-- `archive/` — raw data and intermediate files kept for reference
-- `tools/` — helper scripts used during development
-
-## Quick start (recommended for reviewers)
-
-1. Create and activate a Python 3.10+ virtual environment
+1. Create and activate a Python 3.10+ virtual environment.
 
 ```powershell
 python -m venv .venv
@@ -41,52 +32,41 @@ python -m venv .venv
 pip install -r project/requirements.txt
 ```
 
-2. Run unit tests (backend)
+2. Run the backend tests.
 
 ```powershell
 cd project
 pytest backend/tests -q
 ```
 
-3. Train the model (this will generate `project/backend/models` and charts)
+3. Train the model and generate artifacts.
 
 ```powershell
 python project/backend/train.py
-```
-
-4. Generate prediction artifacts (validation + December forecast)
-
-```powershell
 python project/backend/predict.py
 ```
 
-5. Run the API locally
+4. Start the app and open the UI.
 
 ```powershell
 python project/backend/app.py
-# open http://localhost:8000/docs for interactive API docs
+# http://localhost:8000
 ```
 
-6. Serve the frontend (optional) from the `project/frontend` folder
+The FastAPI app serves the API, charts, and frontend from port 8000.
 
-```powershell
-cd project/frontend
-python -m http.server 3000
-# open http://localhost:3000
-```
+## Submission Notes
 
-## What I validated for this submission
+- The main code lives under [project/](project); the generated submission assets now live under [deliverables/](deliverables) in clearly organized folders.
+- If you are reviewing the repo on GitHub, start with this README, then open [project/README.md](project/README.md) for the fuller technical write-up.
+- The [archive/](archive) folder is intentionally preserved so the original inputs and templates remain available.
 
-- Backend tests pass (`project/backend/tests`) — run `pytest` to verify.
-- Training pipeline runs end-to-end and produces model artifacts under `project/backend/models`.
-- Prediction scripts produce `validation_predictions.csv` and `december_chart_predictions.csv` (also copied to `deliverables/`).
+## Validation
 
-## Notes for deployment
+- Backend tests are available under [project/backend/tests](project/backend/tests).
+- The training and prediction scripts produce the CSV outputs stored in [deliverables/exports](deliverables/exports) and related charts in [deliverables/plots](deliverables/plots).
+- The generated architecture image is stored at [deliverables/architecture.png](deliverables/architecture.png).
 
-- The FastAPI app is configured to serve the frontend static files if the `project/frontend` folder is present. To deploy to Vercel you can link this repository and configure the build step to only serve the static `project/frontend` content or deploy the backend separately (e.g., Render, Fly, or a Docker container).
+## License
 
-## Contributing / Checklist before final submission
-
-- Remove large raw datasets from the repo if you plan to publish publicly (they are kept in `archive/`).
-- Record a short 2–3 minute walkthrough (Loom) showing the folder structure, how to run the project, and the results.
-- Export the report `project/backend/reports/FreightAI_Assessment_Report.docx` to PDF if needed and include it in `deliverables/`.
+MIT License - see [project/LICENSE](project/LICENSE)

@@ -1,24 +1,23 @@
-# 🚛 FreightAI — Enterprise Freight Rate Prediction Platform
+# 🚛 FreightAI — Freight Rate Prediction Platform
 
-> **AI-powered freight rate intelligence built with XGBoost, LightGBM, CatBoost, SHAP & FastAPI.**  
-> Predict B2B freight rates in < 50ms with 94%+ accuracy across 7 benchmarked ML models.
+> **Freight rate prediction assessment project built with FastAPI, scikit-learn, SHAP, and a seven-model benchmark pipeline.**
 
 ---
 
 ## ✨ Platform Overview
 
-FreightAI is a **production-ready Machine Learning platform** designed for logistics teams that need fast, accurate, and explainable freight rate predictions. Every layer of the system — from data preprocessing to REST API — was engineered to production standards.
+FreightAI is a freight rate prediction assessment project with a supervised ML pipeline, explainability outputs, and a FastAPI backend that serves the API and static frontend from a single app.
 
 | Feature | Details |
 |---|---|
 | 🧠 **ML Engine** | XGBoost, LightGBM, CatBoost, Random Forest, Extra Trees, Gradient Boosting, Linear Regression |
-| 🔍 **Explainability** | SHAP TreeExplainer — global summaries + interactive local waterfall attributions |
-| ⚡ **Inference Speed** | < 50ms per prediction via FastAPI |
-| 📊 **Validation R²** | 0.94+ on held-out validation set |
+| 🔍 **Explainability** | SHAP summary and feature-importance charts |
+| ⚡ **Inference** | FastAPI prediction endpoints for single and batch requests |
+| 📊 **Validation R²** | 0.8507 on the holdout validation set |
 | 📅 **Forecasting** | Day-by-day December 2025 rate forecast with seasonality analysis |
-| 📁 **Batch Processing** | Drag-and-drop CSV upload → instant bulk predictions with stats summary |
-| 🎨 **Frontend** | Premium glassmorphism dark-mode UI with 15+ interactive Chart.js visualizations |
-| 🐳 **Docker** | Fully containerised — one command to run |
+| 📁 **Batch Processing** | CSV upload prediction workflow |
+| 🎨 **Frontend** | Static HTML/CSS/JS dashboard served by the app |
+| 🐳 **Docker** | Containerized backend with frontend served from the same app |
 
 ---
 
@@ -53,7 +52,7 @@ project/
 │   │   ├── dashboard.js           # Metrics fetch + dynamic Chart.js charts
 │   │   └── charts.js              # Static chart loader helper
 │   ├── index.html                 # Landing page — hero, features, tech stack
-│   ├── prediction.html            # Live prediction + 5-chart analytics dashboard
+│   ├── prediction.html            # Live prediction + analytics dashboard
 │   ├── dashboard.html             # Model performance dashboard
 │   ├── analytics.html             # EDA charts — distribution, correlation, scatter
 │   ├── model.html                 # SHAP explainability + interactive waterfall
@@ -102,23 +101,17 @@ python predict.py
 ```
 
 Outputs:
-- `validation_predictions.csv` — predictions on the held-out validation set  
-- `december_chart_predictions.csv` — day-by-day December 2025 rate forecasts
+- [deliverables/exports/validation_predictions.csv](../deliverables/exports/validation_predictions.csv) — predictions on the held-out validation set  
+- [deliverables/exports/december_chart_predictions.csv](../deliverables/exports/december_chart_predictions.csv) — day-by-day December 2025 rate forecasts
 
 ### 4. Start the Platform
 
-**Backend (FastAPI on port 8000):**
+**Backend and frontend together on port 8000:**
 ```bash
 python app.py
 ```
 
-**Frontend (on port 3000):**
-```bash
-cd ../frontend
-python -m http.server 3000
-```
-
-Open **http://localhost:3000** in your browser.
+Open **http://localhost:8000** in your browser.
 
 > 📖 **Interactive API docs** available at **http://localhost:8000/docs**
 
@@ -165,10 +158,9 @@ docker run -p 8000:8000 freightai
 ## 🧪 Key Technical Decisions
 
 ### Feature Engineering
-- **Target Encoding** with smoothing (k=20) for high-cardinality city columns — prevents overfitting on rare routes
-- **Cyclical date features** (sin/cos month, dayofweek) to capture seasonal periodicity correctly
-- **Haversine distance** incorporated as a cross-check against reported distance
-- **Distance & weight bins** to capture non-linear threshold effects
+- **Target encoding** for high-cardinality city columns
+- **Date-based features** for seasonality and weekday patterns
+- **Distance and weight interactions** to capture non-linear threshold effects
 
 ### Model Selection
 Tree-based ensembles consistently outperform linear models because:

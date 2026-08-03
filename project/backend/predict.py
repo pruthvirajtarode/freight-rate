@@ -129,16 +129,18 @@ def run_predictions() -> None:
         id_col=None,  # Keep all columns for the chart
     )
 
-    # Copy to root folder for submission compliance
+    # Copy submission-ready outputs into the deliverables folder
     import shutil
 
     from config import BASE_DIR
     try:
-        shutil.copy2(VALIDATION_PREDICTIONS_PATH, BASE_DIR.parent / "validation_predictions.csv")
-        shutil.copy2(DECEMBER_PREDICTIONS_PATH, BASE_DIR.parent / "december_chart_predictions.csv")
-        logger.info("Copied predictions to root folder for submission.")
+        export_dir = BASE_DIR.parent / "deliverables" / "exports"
+        export_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(VALIDATION_PREDICTIONS_PATH, export_dir / "validation_predictions.csv")
+        shutil.copy2(DECEMBER_PREDICTIONS_PATH, export_dir / "december_chart_predictions.csv")
+        logger.info("Copied predictions to the deliverables export folder.")
     except Exception as e:
-        logger.warning(f"Could not copy predictions to root folder: {e}")
+        logger.warning(f"Could not copy predictions to the deliverables export folder: {e}")
 
     logger.info("All predictions completed successfully.")
 

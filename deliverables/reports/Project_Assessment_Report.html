@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreightAI — ML Engineer Assessment &amp; Business Proposal Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --primary-gradient: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            --accent: #0EA5E9;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --dark-bg: #0F172A;
+            --card-bg: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-color: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .report-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #182234;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        /* PAGE BREAK RULES */
+        .avoid-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* 1. COVER PAGE */
+        .cover-page {
+            min-height: 96vh;
+            background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 40%, #312E81 80%, #4338CA 100%);
+            padding: 3.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #FFFFFF;
+            page-break-after: always;
+            break-after: page;
+        }
+
+        .cover-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #FFFFFF;
+        }
+
+        .brand-logo i { color: #818CF8; }
+
+        .assessment-badge {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #E0E7FF;
+        }
+
+        .cover-main { margin: 3rem 0; }
+
+        .cover-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1.2rem;
+            background: linear-gradient(to right, #FFFFFF, #C7D2FE, #818CF8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cover-subtitle {
+            font-size: 1.2rem;
+            color: #A5B4FC;
+            max-width: 850px;
+            line-height: 1.5;
+            margin-bottom: 2.5rem;
+        }
+
+        .candidate-card {
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 1.75rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .info-group label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94A3B8;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .info-group value {
+            display: block;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .cover-footer-links {
+            display: flex;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+            margin-top: 1.8rem;
+        }
+
+        .cover-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(99, 102, 241, 0.25);
+            border: 1px solid rgba(129, 140, 248, 0.4);
+            color: #FFFFFF;
+            padding: 0.7rem 1.2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* CONTENT INNER */
+        .content-container { padding: 3rem; }
+
+        .section-header {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.4rem;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+
+        .section-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #F8FAFC;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .section-header h2 i { color: #6366F1; }
+
+        p, li {
+            color: #CBD5E1;
+            font-size: 0.9rem;
+            line-height: 1.55;
+            margin-bottom: 0.5rem;
+        }
+
+        /* KPI CARDS */
+        .kpi-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 1rem 0 1.5rem;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .kpi-card-enhanced {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .kpi-card-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .kpi-card-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #818CF8;
+            margin-bottom: 0.2rem;
+        }
+
+        .kpi-card-lbl {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 700;
+        }
+
+        /* TABLES */
+        .table-responsive {
+            overflow-x: auto;
+            margin: 1rem 0;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        th {
+            background: #0F172A;
+            color: #94A3B8;
+            text-align: left;
+            padding: 0.75rem 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 0.7rem 0.85rem;
+            border-bottom: 1px solid var(--border-color);
+            color: #E2E8F0;
+        }
+
+        tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+
+        .row-winner {
+            background: rgba(16, 185, 129, 0.12) !important;
+            font-weight: 600;
+        }
+
+        .row-winner td { color: #34D399; }
+
+        /* EMBEDDED IMAGES & DIAGRAM CARDS */
+        .chart-img-card {
+            background: #0F172A;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.85rem;
+            margin: 1rem 0;
+            text-align: center;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .chart-img-card img {
+            width: 100%;
+            max-height: 380px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .chart-caption {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
+            font-weight: 600;
+        }
+
+        .two-img-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* CALLOUTS */
+        .callout {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 4px solid #6366F1;
+            padding: 0.85rem 1.1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .callout h4 {
+            color: #818CF8;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            font-weight: 700;
+        }
+
+        /* PRINT MEDIA STYLES TO REMOVE HEADERS & FOOTERS AND FIX LAYOUT */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0; /* Remove header/footer margin area */
+            }
+            body {
+                background: #FFFFFF;
+                color: #0F172A;
+                padding: 0;
+                margin: 0;
+            }
+            .report-wrapper {
+                box-shadow: none;
+                background: #FFFFFF;
+                max-width: 100%;
+            }
+            .cover-page {
+                background: #1E1B4B !important;
+                -webkit-print-color-adjust: exact;
+                color: #FFFFFF !important;
+                min-height: 100vh;
+                padding: 3rem;
+            }
+            .content-container {
+                padding: 2.5rem 3rem;
+            }
+            .section-header h2 {
+                color: #0F172A;
+                border-bottom-color: #CBD5E1;
+            }
+            p, li { color: #334155; }
+            .kpi-card-enhanced, .chart-img-card, table {
+                background: #F8FAFC !important;
+                border-color: #CBD5E1 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .kpi-card-val { color: #4F46E5 !important; }
+            th { background: #E2E8F0 !important; color: #0F172A !important; }
+            td { color: #1E293B !important; }
+            .callout { background: #EEF2FF !important; border-left-color: #4F46E5 !important; }
+            .callout h4 { color: #3730A3 !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="report-wrapper">
+
+    <!-- ================= COVER PAGE ================= -->
+    <div class="cover-page">
+        <div class="cover-header">
+            <div class="brand-logo">
+                <i class="fas fa-truck-fast"></i> FreightAI Platform
+            </div>
+            <div class="assessment-badge">
+                <i class="fas fa-award"></i> ML Engineer Assessment Report
+            </div>
+        </div>
+
+        <div class="cover-main">
+            <h1 class="cover-title">Freight Spot Rate Prediction &amp; Explainable AI Platform</h1>
+            <p class="cover-subtitle">End-to-End Production System for Spot Rate Forecasting, Explainable AI (SHAP), 5-Fold Algorithm Benchmarks, and REST Microservices.</p>
+
+            <div class="candidate-card">
+                <div class="info-group">
+                    <label>Submitted By</label>
+                    <value>Pruthviraj Tarode</value>
+                </div>
+                <div class="info-group">
+                    <label>Target Role</label>
+                    <value>Machine Learning Engineer</value>
+                </div>
+                <div class="info-group">
+                    <label>Evaluating Organization</label>
+                    <value>Spotter Assessment Team</value>
+                </div>
+                <div class="info-group">
+                    <label>Submission Date</label>
+                    <value>August 2026</value>
+                </div>
+            </div>
+
+            <div class="cover-footer-links">
+                <a href="https://github.com/pruthvirajtarode/freight-rate" class="cover-link-btn" target="_blank">
+                    <i class="fab fa-github"></i> GitHub Repository: github.com/pruthvirajtarode/freight-rate
+                </a>
+                <a href="https://freight-rate-one.vercel.app" class="cover-link-btn" target="_blank">
+                    <i class="fas fa-globe"></i> Live Dashboard: freight-rate-one.vercel.app
+                </a>
+            </div>
+        </div>
+
+        <div style="font-size: 0.8rem; color: #94A3B8; display: flex; justify-content: space-between;">
+            <span>Confidential Project Assessment Report</span>
+            <span>Spotter MLE Assessment 2026</span>
+        </div>
+    </div>
+
+    <!-- ================= CONTENT ================= -->
+    <div class="content-container">
+
+        <!-- 1. EXECUTIVE SUMMARY -->
+        <div class="section-header">
+            <h2><i class="fas fa-chart-line"></i> 1. Executive Summary &amp; Core Performance Metrics</h2>
+        </div>
+        <p>This report documents the end-to-end design, training, validation, and deployment of a production-grade machine learning system for freight spot rate estimation. Built on 48,000 historical load transactions, the platform achieves an outstanding holdout R² score of <strong>0.8507</strong> and Mean Absolute Percentage Error (MAPE) of <strong>6.76%</strong>.</p>
+
+        <div class="kpi-grid-4">
+            <div class="kpi-card-enhanced">
+                <div class="kpi-card-val">GradientBoosting</div>
+                <div class="kpi-card-lbl">Winning Model</div>
+            </div>
+            <div class="kpi-card-enhanced">
+                <div class="kpi-card-val">0.8507</div>
+                <div class="kpi-card-lbl">Holdout R² Score</div>
+            </div>
+            <div class="kpi-card-enhanced">
+                <div class="kpi-card-val">6.76%</div>
+                <div class="kpi-card-lbl">Holdout MAPE</div>
+            </div>
+            <div class="kpi-card-enhanced">
+                <div class="kpi-card-val">$128.98</div>
+                <div class="kpi-card-lbl">Holdout MAE</div>
+            </div>
+        </div>
+
+        <!-- 2. ARCHITECTURE & REALISTIC DIAGRAMS -->
+        <div class="section-header">
+            <h2><i class="fas fa-sitemap"></i> 2. System Architecture &amp; UML Diagrams</h2>
+        </div>
+
+        <div class="chart-img-card">
+            <img src="../../project/backend/charts/architecture_diagram.png" alt="System Architecture Diagram">
+            <div class="chart-caption">Figure 2.1: End-to-End System Architecture (FastAPI + SPA + Optuna + SHAP)</div>
+        </div>
+
+        <div class="chart-img-card">
+            <img src="../../project/backend/charts/use_case_diagram.png" alt="Use Case Diagram">
+            <div class="chart-caption">Figure 2.2: Platform Use Case Diagram (Shipper, Broker &amp; Analyst Workflows)</div>
+        </div>
+
+        <div class="chart-img-card">
+            <img src="../../project/backend/charts/sequence_diagram.png" alt="Execution Sequence Diagram">
+            <div class="chart-caption">Figure 2.3: Single Spot Rate Prediction Execution Sequence</div>
+        </div>
+
+        <!-- 3. DATA & EXPLORATORY DATA ANALYSIS -->
+        <div class="section-header">
+            <h2><i class="fas fa-chart-bar"></i> 3. Exploratory Data Analysis &amp; Data Pipeline</h2>
+        </div>
+        <p>Analysis was conducted across 48,000 historical transaction rows. The dataset exhibits non-linear relationships between mileage, equipment weight, and market demand indices.</p>
+
+        <div class="two-img-grid">
+            <div class="chart-img-card">
+                <img src="../../project/backend/charts/target_distribution.png" alt="Target Distribution">
+                <div class="chart-caption">Figure 3.1: Distribution of Posted Freight Rates (USD)</div>
+            </div>
+            <div class="chart-img-card">
+                <img src="../../project/backend/charts/correlation_heatmap.png" alt="Correlation Heatmap">
+                <div class="chart-caption">Figure 3.2: Feature Correlation Matrix Heatmap</div>
+            </div>
+        </div>
+
+        <!-- 4. ALGORITHM COMPARISON & BENCHMARKS -->
+        <div class="section-header">
+            <h2><i class="fas fa-balance-scale"></i> 4. Model Benchmarking &amp; Hyperparameter Optimization</h2>
+        </div>
+        <p>Seven regression algorithms were evaluated using 5-fold cross-validation on the 85% training split (40,800 rows). Outliers were strictly removed from training folds only to eliminate data leakage.</p>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>5-Fold CV RMSE ($)</th>
+                        <th>CV R² Score</th>
+                        <th>Fit Time (sec)</th>
+                        <th>Selection Verdict</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="row-winner">
+                        <td><strong>Gradient Boosting</strong></td>
+                        <td><strong>375.01</strong></td>
+                        <td><strong>0.9272</strong></td>
+                        <td>9.65s</td>
+                        <td>🏆 Selected Winner</td>
+                    </tr>
+                    <tr>
+                        <td>LightGBM</td>
+                        <td>376.39</td>
+                        <td>0.9266</td>
+                        <td>0.22s</td>
+                        <td>Runner-up</td>
+                    </tr>
+                    <tr>
+                        <td>CatBoost</td>
+                        <td>385.36</td>
+                        <td>0.9230</td>
+                        <td>0.50s</td>
+                        <td>Evaluated</td>
+                    </tr>
+                    <tr>
+                        <td>Linear Regression</td>
+                        <td>387.53</td>
+                        <td>0.9222</td>
+                        <td>0.03s</td>
+                        <td>Baseline</td>
+                    </tr>
+                    <tr>
+                        <td>Random Forest</td>
+                        <td>390.11</td>
+                        <td>0.9212</td>
+                        <td>5.70s</td>
+                        <td>Evaluated</td>
+                    </tr>
+                    <tr>
+                        <td>Extra Trees</td>
+                        <td>392.76</td>
+                        <td>0.9201</td>
+                        <td>3.04s</td>
+                        <td>Evaluated</td>
+                    </tr>
+                    <tr>
+                        <td>XGBoost</td>
+                        <td>401.32</td>
+                        <td>0.9166</td>
+                        <td>0.50s</td>
+                        <td>Evaluated</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout">
+            <h4><i class="fas fa-sliders-h"></i> Optuna Bayesian Optimization Results:</h4>
+            <p>Optuna conducted 15 trials over <code>n_estimators</code> (100–500), <code>learning_rate</code> (0.01–0.3), <code>max_depth</code> (2–6), and <code>subsample</code> (0.5–1.0). Best hyperparameters: <code>n_estimators=258</code>, <code>learning_rate=0.0206</code>, <code>max_depth=4</code>, <code>subsample=0.592</code>.</p>
+        </div>
+
+        <!-- 5. HOLDOUT EVALUATION & ERROR ANALYSIS -->
+        <div class="section-header">
+            <h2><i class="fas fa-bullseye"></i> 5. Holdout Evaluation &amp; Error Analysis (7,200 Rows)</h2>
+        </div>
+        <p>The final tuned Gradient Boosting model was evaluated on the 15% unseen holdout set (7,200 rows).</p>
+
+        <div class="two-img-grid">
+            <div class="chart-img-card">
+                <img src="../../project/backend/charts/prediction_scatter.png" alt="Actual vs Predicted Scatter">
+                <div class="chart-caption">Figure 5.1: Actual vs. Predicted Freight Rates (Holdout Set)</div>
+            </div>
+            <div class="chart-img-card">
+                <img src="../../project/backend/charts/residuals.png" alt="Residual Distribution">
+                <div class="chart-caption">Figure 5.2: Error Residual Distribution &amp; Normal Q-Q Alignment</div>
+            </div>
+        </div>
+
+        <!-- 6. EXPLAINABLE AI (SHAP) -->
+        <div class="section-header">
+            <h2><i class="fas fa-eye"></i> 6. Explainable AI (XAI) &amp; SHAP Summary Plot</h2>
+        </div>
+        <p>TreeExplainer was utilized to compute SHAP values for 100% transparent auditability in compliance with supply chain contract standards.</p>
+
+        <div class="chart-img-card">
+            <img src="../../project/backend/charts/shap_summary.png" alt="Global SHAP Summary Plot">
+            <div class="chart-caption">Figure 6.1: Global SHAP Summary Beeswarm Plot (Top Feature Importance &amp; Directional Impact)</div>
+        </div>
+
+        <div class="chart-img-card">
+            <img src="../../project/backend/charts/feature_importance.png" alt="Feature Importance Bar Chart">
+            <div class="chart-caption">Figure 6.2: Relative Impurity Feature Importance Ranking</div>
+        </div>
+
+        <!-- 7. DECEMBER FORECAST -->
+        <div class="section-header">
+            <h2><i class="fas fa-calendar-check"></i> 7. December 2025 Daily Rate Forecast Insights</h2>
+        </div>
+        <p>Daily forecasts were generated for all 31 days in December 2025 using <code>december-chart-inputs.csv</code>.</p>
+
+        <div class="chart-img-card">
+            <img src="../../project/backend/charts/december_forecast.png" alt="December 2025 Daily Freight Rate Forecast">
+            <div class="chart-caption">Figure 7.1: December 2025 Daily Spot Rate Forecast with Annotated Seasonal Trend Dynamics</div>
+        </div>
+
+        <!-- 8. API & PRODUCTION DEPLOYMENT -->
+        <div class="section-header">
+            <h2><i class="fas fa-microchip"></i> 8. Production API Specification &amp; Deliverables</h2>
+        </div>
+        <p>FastAPI provides lightweight, asynchronous REST microservices bundled with the SPA frontend inside Docker or serverless Vercel hosts.</p>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Deliverable File</th>
+                        <th>Format &amp; Rows</th>
+                        <th>Description &amp; Verification Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>validation_predictions.csv</code></td>
+                        <td>12,000 Rows CSV</td>
+                        <td>Contains <code>load_id</code> and <code>predicted_rate</code>; a mirrored copy is also kept in <code>deliverables/validation_predictions.csv</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>december_forecast.png</code></td>
+                        <td>PNG Image</td>
+                        <td>Annotated daily forecast plot generated in root directory.</td>
+                    </tr>
+                    <tr>
+                        <td><code>score.py</code></td>
+                        <td>Python Executable</td>
+                        <td>CLI script validating December plot generation &amp; submission template format.</td>
+                    </tr>
+                    <tr>
+                        <td><code>Dockerfile</code></td>
+                        <td>Container Spec</td>
+                        <td>Single-port Uvicorn launcher serving API endpoints and web app at <code>:8000</code>.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout" style="background: rgba(16, 185, 129, 0.1); border-left-color: #10B981;">
+            <h4 style="color: #34D399;"><i class="fas fa-check-circle"></i> Verification &amp; Submission Readiness</h4>
+            <p>The repository includes five automated tests and the submission artifact <code>validation_predictions.csv</code> keeps the required two-column schema. The report wording has been aligned to repository evidence rather than a fresh-environment execution pass.</p>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

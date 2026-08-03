@@ -60,8 +60,9 @@ ax.annotate("", xy=(8.45, 2.3), xytext=(8.95, 3.2), arrowprops=arrow_style)
 # XAI Engine -> API Gateway
 ax.annotate("", xy=(5.65, 3.5), xytext=(6.15, 2.3), arrowprops=arrow_style)
 
-plt.tight_layout()
-plt.savefig(output_dir / "architecture_diagram.png", facecolor=fig.get_facecolor(), bbox_inches='tight')
+ax.set_xlim(0, 12)
+ax.set_ylim(0, 6.5)
+plt.savefig(output_dir / "architecture_diagram.png", facecolor=fig.get_facecolor())
 plt.close()
 
 
@@ -105,8 +106,9 @@ for x, y, w, h, label in use_cases:
     # Association Line from Actor
     ax.plot([2.55, x], [3.0, y + h/2], color="#64748B", lw=1.5, linestyle="-")
 
-plt.tight_layout()
-plt.savefig(output_dir / "use_case_diagram.png", facecolor=fig.get_facecolor(), bbox_inches='tight')
+ax.set_xlim(0, 11)
+ax.set_ylim(0, 6)
+plt.savefig(output_dir / "use_case_diagram.png", facecolor=fig.get_facecolor())
 plt.close()
 
 
@@ -151,8 +153,9 @@ for x1, x2, y, msg, col, is_return in messages:
                 arrowprops=dict(arrowstyle=f"{arr},head_width=0.3,head_length=0.5", color=col, lw=1.8, linestyle=ls))
     ax.text((x1+x2)/2, y + 0.15, msg, color=col, fontsize=8.5, fontweight='bold', ha='center')
 
-plt.tight_layout()
-plt.savefig(output_dir / "sequence_diagram.png", facecolor=fig.get_facecolor(), bbox_inches='tight')
+ax.set_xlim(0, 12)
+ax.set_ylim(0, 6.5)
+plt.savefig(output_dir / "sequence_diagram.png", facecolor=fig.get_facecolor())
 plt.close()
 
 print("All 3 diagram images generated successfully in project/backend/charts/")

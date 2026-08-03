@@ -104,19 +104,25 @@ def generate_december_chart():
     plt.legend(loc="upper right", frameon=True)
     plt.subplots_adjust(bottom=0.1, top=0.92)
     
-    # Save to charts directory and root folder
+    # Save to the backend chart folder and the deliverables plots folder
     chart_output_path = Path("project/backend/charts/december_forecast.png")
+    deliverables_chart_path = Path("deliverables/plots/december_forecast.png")
     chart_output_path.parent.mkdir(parents=True, exist_ok=True)
+    deliverables_chart_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(chart_output_path, dpi=150)
-    plt.savefig("december_forecast.png", dpi=150)
+    plt.savefig(deliverables_chart_path, dpi=150)
     plt.close()
     
-    print(f"December forecast chart saved to {chart_output_path} and root december_forecast.png")
+    print(f"December forecast chart saved to {chart_output_path} and {deliverables_chart_path}")
 
 def score_predictions():
     """Scores validation predictions against validation template if they exist."""
-    val_preds_path = Path("project/backend/validation_predictions.csv")
-    if val_preds_path.exists():
+    candidate_paths = [
+        Path("project/backend/validation_predictions.csv"),
+        Path("deliverables/exports/validation_predictions.csv"),
+    ]
+    val_preds_path = next((path for path in candidate_paths if path.exists()), None)
+    if val_preds_path is not None:
         print(f"\nChecking validation predictions at {val_preds_path}...")
         df_preds = pd.read_csv(val_preds_path)
         print(f"Loaded {len(df_preds)} prediction rows.")

@@ -1,7 +1,7 @@
 # FreightAI Assessment Report
 
 ## Project Summary
-FreightAI is a production-style machine learning platform for freight rate prediction. The project includes data preprocessing, feature engineering, model benchmarking, hyperparameter tuning, evaluation, forecasting, an API backend, and a frontend dashboard.
+FreightAI is a freight rate prediction assessment project with data preprocessing, feature engineering, model benchmarking, hyperparameter tuning, evaluation, forecasting, an API backend, and a frontend dashboard.
 
 ## Model Performance
 - Best model: GradientBoosting
@@ -15,10 +15,10 @@ The benchmark compared 7 models: LinearRegression, RandomForest, ExtraTrees, Gra
 
 ## Deliverables Produced
 - Trained model artifacts in backend/models
-- Validation predictions in backend/validation_predictions.csv
-- December forecast predictions in backend/december_chart_predictions.csv
-- Charts saved in backend/charts
-- FastAPI backend and responsive frontend implemented
+- Validation predictions in backend/validation_predictions.csv and deliverables/exports/validation_predictions.csv
+- December forecast predictions in backend/december_chart_predictions.csv and deliverables/exports/december_chart_predictions.csv
+- Charts saved in backend/charts and deliverables/plots
+- FastAPI backend and static frontend implemented
 
 ## Notes
-The project was validated with automated tests and the prediction pipeline was executed successfully.
+The project includes automated tests in backend/tests, and the prediction pipeline was executed successfully in the local environment.
