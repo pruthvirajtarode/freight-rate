@@ -401,7 +401,7 @@ def _build_styles():
 
 def _format_inline(text: str) -> str:
     # Normalize special characters to avoid PDF Helvetica font failures
-    text = text.replace("×", "x").replace("■", "-").replace("✅", "[Selected Winner]").replace("🏆", "[Winner]")
+    text = text.replace("×", "x").replace("■", "-").replace("✅", "Completed").replace("🏆", "Selected Model")
     parts = escape(text)
     # Match markdown bold **text** -> <b>text</b>
     parts = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', parts)
@@ -454,9 +454,9 @@ def make_styled_table(data_rows: list[list[str]], col_widths: list[float] | None
     # Data rows
     for row in data_rows[1:]:
         formatted_row = []
-        is_winner = any("GradientBoosting" in cell or "Winner" in cell or "selected winner" in cell.lower() for cell in row)
+        is_selected_model = any("GradientBoosting" in cell for cell in row)
         for cell in row:
-            if is_winner:
+            if is_selected_model:
                 p_text = f"<font color='#137333'><b>{_format_inline(cell)}</b></font>"
             else:
                 p_text = _format_inline(cell)
@@ -480,8 +480,8 @@ def make_styled_table(data_rows: list[list[str]], col_widths: list[float] | None
     # Row styles: alternate rows & winner highlighting
     for r_idx, row in enumerate(data_rows[1:]):
         real_idx = r_idx + 1
-        is_winner = any("GradientBoosting" in cell or "Winner" in cell or "selected winner" in cell.lower() for cell in row)
-        if is_winner:
+        is_selected_model = any("GradientBoosting" in cell for cell in row)
+        if is_selected_model:
             t_style.append(('BACKGROUND', (0, real_idx), (-1, real_idx), colors.HexColor("#E6F4EA")))
         elif real_idx % 2 == 0:
             t_style.append(('BACKGROUND', (0, real_idx), (-1, real_idx), colors.HexColor("#F8FAFC")))

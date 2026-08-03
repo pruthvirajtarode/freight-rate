@@ -77,7 +77,7 @@ All 7 models were compared using 5-fold CV on the training split (RMSE on held-o
 
 | Model | CV RMSE | CV R² | Fit Time (s) |
 |---|---|---|---|
-| **GradientBoosting ✅ Winner** | **375.01** | **0.9272** | 9.65 |
+| **GradientBoosting (Selected Model)** | **375.01** | **0.9272** | 9.65 |
 | LightGBM | 376.39 | 0.9266 | 0.22 |
 | CatBoost | 385.36 | 0.9230 | 0.50 |
 | LinearRegression | 387.53 | 0.9222 | 0.03 |
@@ -85,7 +85,7 @@ All 7 models were compared using 5-fold CV on the training split (RMSE on held-o
 | ExtraTrees | 392.76 | 0.9201 | 3.04 |
 | XGBoost | 401.32 | 0.9166 | 0.50 |
 
-**Selection:** `GradientBoosting` achieved the lowest RMSE (375.01) and highest R² (0.9272). While LightGBM was close (376.39), GradientBoosting was chosen for its slight performance edge and better native interpretability with SHAP values. It provided the best overall balance of prediction accuracy, stability, training time, and interpretability for deployment.
+**Selection:** `GradientBoosting` achieved the lowest RMSE (375.01) and highest R² (0.9272), so it was selected as the final model. While LightGBM was close (376.39), GradientBoosting provided the best overall balance of prediction accuracy, stability, training time, and interpretability for deployment.
 
 ---
 
@@ -220,7 +220,7 @@ Both API and frontend are served from port 8000.
 
 ## 15. Implementation Readiness Checklist
 
-This checklist reflects repository evidence rather than a fresh-environment execution pass.
+This checklist is based on repository evidence and was not independently re-executed in a clean environment.
 
 | Item | Status |
 |---|---|
@@ -273,7 +273,7 @@ project/
 | FastAPI Service | ✅ | `project/backend/app.py` |
 | Docker Configuration | ✅ | `project/Dockerfile` |
 | README Documentation | ✅ | `README.md`, `project/README.md` |
-| GitHub Repository | ✅ | `https://github.com/pruthvirajtarode/freight-rate` |
+| GitHub Repository | ✅ | `GitHub repository` |
 
 ---
 
@@ -283,7 +283,7 @@ project/
 |---|---|---|
 | GitHub Repository | ✅ Reachable | Public repository content loads correctly |
 | Live Dashboard (Vercel) | ✅ Reachable | Frontend pages load and route correctly |
-| `/api/v1/health` on Vercel host | ⚠️ 404 | Indicates backend health endpoint is not exposed on the same Vercel host/path |
+| `/api/v1/health` on Vercel host | ⚠️ 404 | The backend health endpoint is not exposed on the Vercel frontend host/path in this verification |
 
 This report only claims checks that were directly verified from the current environment.
 
